@@ -8,13 +8,13 @@ Keep only active or explicitly unresolved worktrees, and record why each remains
 
 ## Git commit identity
 
-Use the GitHub-provided private noreply address `116222349+vdoshi96@users.noreply.github.com` for the author and committer email of every commit in this repository. Set it in repository-local Git configuration before committing:
+Use the GitHub-provided private noreply address `116222349+vdoshi96@users.noreply.github.com` for the author and committer email of every commit created locally in this repository. Set it in repository-local Git configuration before committing:
 
 ```sh
 git config --local user.email 116222349+vdoshi96@users.noreply.github.com
 ```
 
-Verify both `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT` before each commit. Do not use a Gmail or other personal email address in commit metadata.
+Verify both `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT` before each local commit. GitHub-created merge commits may use GitHub's service noreply metadata. Do not use a Gmail or other personal email address in commit metadata.
 
 ## Documentation stewardship
 

@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=4ed389d807e06abf64aee56b67700ec4b42d480ffeb5b85cee21d525ac4b647d source-path-base64=ZG9jcy9MT0cubWQ= -->
+<!-- tracker-free-docs-parity:v1 source-sha256=b5f205ffb31be1cae3837e2582c5a2936abd2beb6440dcef345af1fc510d555b source-path-base64=ZG9jcy9MT0cubWQ= -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="4ed389d807e06abf64aee56b67700ec4b42d480ffeb5b85cee21d525ac4b647d">
+  <meta name="source-sha256" content="b5f205ffb31be1cae3837e2582c5a2936abd2beb6440dcef345af1fc510d555b">
   <title>Project Log</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -53,5 +53,10 @@
   <p><code>VERIFIED</code>: After explicit user authorization, created the public <a href="https://github.com/vdoshi96/tracker-free">vdoshi96/tracker-free</a> repository, configured it as <code>origin</code>, and pushed the existing two-commit <code>main</code> history. GitHub reported <code>main</code> at implementation commit <code>c47e655fddea0de56c434fd8552fd95bb09188c7</code> before this publication-documentation update.</p>
   <p><code>VERIFIED</code>: The pre-publication review found no real credentials or private files in reachable Git history. Matches for token and secret terminology were source-code guards or synthetic security-test fixtures. No license was added; public visibility alone does not grant an open-source license.</p>
   <p><code>VERIFIED</code>: Public publication did not alter the application implementation, installed bundle, prior QA evidence, or historical release claims. Current remote and parity state is maintained in <a href="STATUS.html">Current status</a>.</p>
+  <h2 id="2026-07-24-commit-email-privacy-rewrite">2026-07-24 — commit-email privacy rewrite</h2>
+  <p><code>VERIFIED</code>: With explicit user authorization, rewrote the author and committer metadata of the three locally created commits that used a personal Gmail address. The replacement commits use GitHub's private noreply address while preserving the original file trees, timestamps, messages, and commit topology.</p>
+  <p><code>VERIFIED</code>: A force-push alone could not remove the prior repository's read-only pull-request reference. The prior public repository and its single pull request were therefore deleted, then <a href="https://github.com/vdoshi96/tracker-free">vdoshi96/tracker-free</a> was recreated at the same public URL and populated only with the sanitized history.</p>
+  <p><code>VERIFIED</code>: The pre-rewrite public tip and its rewritten counterpart have the same Git tree identity. Git object integrity and 14-source documentation parity pass, every commit reachable from public <code>main</code> uses private or GitHub service noreply metadata, and repository-local Git configuration plus project rules prevent future local commits from using a personal email address.</p>
+  <p><code>CONSEQUENCE</code>: Every rewritten commit and descendant has a new commit ID. The removed repository's pull request and its discussion are intentionally unavailable.</p>
 </body>
 </html>
