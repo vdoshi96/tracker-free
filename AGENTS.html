@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=dd483a1c6273792a882fd05fb7e33fb49ef32a4875d71daf998c0b3e5c2566a5 source-path-base64=QUdFTlRTLm1k -->
+<!-- tracker-free-docs-parity:v1 source-sha256=3a9d2ee1ba1780cee60d7185b0bb34d6ae829a190d74dca660b2870be32fd646 source-path-base64=QUdFTlRTLm1k -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="dd483a1c6273792a882fd05fb7e33fb49ef32a4875d71daf998c0b3e5c2566a5">
+  <meta name="source-sha256" content="3a9d2ee1ba1780cee60d7185b0bb34d6ae829a190d74dca660b2870be32fd646">
   <title>Tracker Free Repository Instructions</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -29,9 +29,9 @@
   <p>After every completed feature or iteration, push the working branch, merge it into GitHub <code>main</code>, update local <code>main</code> to the same commit, and remove completed worktrees.</p>
   <p>Keep only active or explicitly unresolved worktrees, and record why each remains. After QA, retain only the newest completed run's evidence unless the user asks to preserve more. If no GitHub remote is configured, record that external push/merge blocker, finish applicable local-main/worktree hygiene, and never invent an external repository.</p>
   <h2 id="git-commit-identity">Git commit identity</h2>
-  <p>Use the GitHub-provided private noreply address <code>116222349+vdoshi96@users.noreply.github.com</code> for the author and committer email of every commit in this repository. Set it in repository-local Git configuration before committing:</p>
+  <p>Use the GitHub-provided private noreply address <code>116222349+vdoshi96@users.noreply.github.com</code> for the author and committer email of every commit created locally in this repository. Set it in repository-local Git configuration before committing:</p>
   <pre><code class="language-sh">git config --local user.email 116222349+vdoshi96@users.noreply.github.com</code></pre>
-  <p>Verify both <code>git var GIT_AUTHOR_IDENT</code> and <code>git var GIT_COMMITTER_IDENT</code> before each commit. Do not use a Gmail or other personal email address in commit metadata.</p>
+  <p>Verify both <code>git var GIT_AUTHOR_IDENT</code> and <code>git var GIT_COMMITTER_IDENT</code> before each local commit. GitHub-created merge commits may use GitHub's service noreply metadata. Do not use a Gmail or other personal email address in commit metadata.</p>
   <h2 id="documentation-stewardship">Documentation stewardship</h2>
   <p>Before finishing, correct stale, inaccurate, or contradictory authoritative documentation with verified information, using its canonical generator when applicable. Preserve intentional history. If blocked or uncertain, record the stale content, proposed correction or open question, and blocker durably in scope, then report it.</p>
   <h2 id="html-documentation-parity">HTML documentation parity</h2>

@@ -55,3 +55,13 @@
 `VERIFIED`: The pre-publication review found no real credentials or private files in reachable Git history. Matches for token and secret terminology were source-code guards or synthetic security-test fixtures. No license was added; public visibility alone does not grant an open-source license.
 
 `VERIFIED`: Public publication did not alter the application implementation, installed bundle, prior QA evidence, or historical release claims. Current remote and parity state is maintained in [Current status](STATUS.md).
+
+## 2026-07-24 — commit-email privacy rewrite
+
+`VERIFIED`: With explicit user authorization, rewrote the author and committer metadata of the three locally created commits that used a personal Gmail address. The replacement commits use GitHub's private noreply address while preserving the original file trees, timestamps, messages, and commit topology.
+
+`VERIFIED`: A force-push alone could not remove the prior repository's read-only pull-request reference. The prior public repository and its single pull request were therefore deleted, then [vdoshi96/tracker-free](https://github.com/vdoshi96/tracker-free) was recreated at the same public URL and populated only with the sanitized history.
+
+`VERIFIED`: The pre-rewrite public tip and its rewritten counterpart have the same Git tree identity. Git object integrity and 14-source documentation parity pass, every commit reachable from public `main` uses private or GitHub service noreply metadata, and repository-local Git configuration plus project rules prevent future local commits from using a personal email address.
+
+`CONSEQUENCE`: Every rewritten commit and descendant has a new commit ID. The removed repository's pull request and its discussion are intentionally unavailable.
