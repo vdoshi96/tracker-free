@@ -6,6 +6,16 @@ After every completed feature or iteration, push the working branch, merge it in
 
 Keep only active or explicitly unresolved worktrees, and record why each remains. After QA, retain only the newest completed run's evidence unless the user asks to preserve more. If no GitHub remote is configured, record that external push/merge blocker, finish applicable local-main/worktree hygiene, and never invent an external repository.
 
+## Git commit identity
+
+Use the GitHub-provided private noreply address `116222349+vdoshi96@users.noreply.github.com` for the author and committer email of every commit in this repository. Set it in repository-local Git configuration before committing:
+
+```sh
+git config --local user.email 116222349+vdoshi96@users.noreply.github.com
+```
+
+Verify both `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT` before each commit. Do not use a Gmail or other personal email address in commit metadata.
+
 ## Documentation stewardship
 
 Before finishing, correct stale, inaccurate, or contradictory authoritative documentation with verified information, using its canonical generator when applicable. Preserve intentional history. If blocked or uncertain, record the stale content, proposed correction or open question, and blocker durably in scope, then report it.
