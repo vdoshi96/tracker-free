@@ -1,0 +1,81 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=11083e9ba5bac073aebbd1ffb0895640e10a71c2aa70afe107891ea33eb2ca6b source-path-base64=ZG9jcy9QUklWQUNZLm1k -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="11083e9ba5bac073aebbd1ffb0895640e10a71c2aa70afe107891ea33eb2ca6b">
+  <title>Privacy and Security</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/PRIVACY.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="privacy-and-security">Privacy and Security</h1>
+  <h2 id="core-statement">Core statement</h2>
+  <p>Tracker Free does not persist clipboard contents in its own files, database, analytics, or logs.</p>
+  <p><code>RECOMMENDATION</code>: Clipboard originals, outputs, undo state, and conflict pairs remain in bounded RAM only. They are released on invalidation and wiped on sleep/session loss, logout, termination, or process exit.</p>
+  <h2 id="data-handling">Data handling</h2>
+  <p>Tracker Free does not place clipboard values, originals, parameter values, or content-derived hashes in:</p>
+  <ul>
+  <li><code>UserDefaults</code> or the custom-rule file.</li>
+  <li>Logs, assertions, errors, signposts, crash annotations, or notifications.</li>
+  <li>Menu tooltips, filenames, screenshots, test attachments, or generated QA reports.</li>
+  <li>Analytics, telemetry, remote crash reporting, update checks, or a server.</li>
+</ul>
+  <p><code>RECOMMENDATION</code>: <code>os.Logger</code> may record only bounded result enums, timings, counts, rule revision, parameter names approved for display, and generic error categories. Custom rules display a configured safe name, not an untrusted copied value.</p>
+  <h2 id="network-boundary">Network boundary</h2>
+  <p><code>RECOMMENDATION</code>: The app contains no <code>URLSession</code>, WebKit, Network-framework client, DNS lookup, redirect resolver, shortener expansion, link preview, or copied-link navigation.</p>
+  <p><code>RECOMMENDATION</code>: App Sandbox and Hardened Runtime are enabled. Network client/server entitlements are absent. User-selected file access is included only when required for rule import/export.</p>
+  <p><code>RECOMMENDATION</code>: Rules are bundled and locally edited typed data. They are never downloaded and never executable.</p>
+  <h2 id="pasteboard-access">Pasteboard access</h2>
+  <p><code>VERIFIED</code>: Current AppKit exposes <code>NSPasteboard.accessBehavior</code> and General-pasteboard programmatic access can require user approval. Pattern detection can avoid an access alert for supported detection but does not authorize matched-value reads.</p>
+  <p><code>RECOMMENDATION</code>: On current macOS, automatic cleaning is operational only with <code>.alwaysAllow</code>. <code>.default</code>, <code>.ask</code>, and <code>.alwaysDeny</code> are permission-required or blocked states; they must not silently appear active or repeatedly trigger prompts.</p>
+  <p><code>RECOMMENDATION</code>: First enablement explains why background cleaning needs access before any programmatic content read that may prompt. Manual user-initiated behavior is tested rather than assumed.</p>
+  <p><code>OPEN</code>: The exact macOS 26.6 alert wording, Settings label/navigation, count/type-inspection behavior, and App Intent treatment require local observation. Do not hardcode an undocumented Settings deep link.</p>
+  <p><code>VERIFIED</code>: The permission adapter and fake-pasteboard tests keep blocked states count-only, baseline a newly observed generation before a contextual prompt attempt, and never clean that prompting generation. The <code>.alwaysDeny</code> recovery UI opens System Settings without relying on an undocumented deep link; the real four-state matrix remains <code>OPEN</code>.</p>
+  <p>No Accessibility, Automation, Input Monitoring, Screen Recording, Full Disk Access, global key event, event tap, or synthetic paste is requested.</p>
+  <h2 id="clipboard-history">Clipboard History</h2>
+  <p><code>VERIFIED</code>: Current macOS can retain text, images, links, and files in Spotlight Clipboard History when Clipboard Search is enabled.</p>
+  <p>Tracker Free has no documented API to erase selected system-history generations. macOS may retain both the original and cleaned value. The user controls the system Clipboard Search setting.</p>
+  <p><code>RECOMMENDATION</code>: Never state that clipboard values are never persisted anywhere; the accurate claim is limited to Tracker Free's own storage, analytics, and logs.</p>
+  <h2 id="universal-clipboard">Universal Clipboard</h2>
+  <p><code>VERIFIED</code>: The General pasteboard automatically participates in Universal Clipboard, no public API identifies a generation's origin, and <code>.currentHostOnly</code> makes a newly written generation local to the current Mac.</p>
+  <p>The original may synchronize before Tracker Free rewrites it, and Tracker Free cannot retract it. Version 1 intentionally writes cleaned and restored generations with <code>.currentHostOnly</code>, so the rewritten value does not intentionally propagate to another device.</p>
+  <h2 id="retention-and-recovery">Retention and recovery</h2>
+  <ul>
+  <li>Undo stores one original/output pair in RAM only after a verified successful write.</li>
+  <li>Any intervening external generation invalidates undo.</li>
+  <li>Relaunch, crash, sleep, or session resignation loses undo.</li>
+  <li>A two-second bounded RAM pair ring supports conflict detection; no persistent hash is substituted.</li>
+  <li>Sleep or session loss wipes that ring but preserves an already-entered generic conflict-pause state until explicit resume.</li>
+  <li>A crash can leave original or cleaned content.</li>
+  <li>A crash during the irreducible clear/write interval can leave an empty generation.</li>
+  <li>A synchronous lazy provider can block or allocate before returning; Tracker Free rejects a return later than 100 ms but cannot preempt the AppKit call.</li>
+</ul>
+  <p><code>RECOMMENDATION</code>: Minimize the synchronous mutation window, verify readback, and roll back only while ownership is certain.</p>
+  <h2 id="verification">Verification</h2>
+  <p>Release evidence must include:</p>
+  <ul>
+  <li>A static source and entitlement scan.</li>
+  <li>Runtime observation showing no app-originated network requests.</li>
+  <li>A sentinel check proving clipboard content is absent from logs and persistence.</li>
+  <li>Inspection of the sandbox, Hardened Runtime, file access, and absent network entitlements.</li>
+  <li>Synthetic-only Clipboard History and Universal Clipboard checks without displaying existing history.</li>
+</ul>
+  <p><code>OPEN</code>: These are release claims only after evidence is recorded in <a href="STATUS.html">Current status</a>.</p>
+</body>
+</html>

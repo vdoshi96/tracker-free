@@ -1,0 +1,142 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=cae70f7f79d9ef694e1fa4755a395940995f86327cc9d46b1be7935a5b3a21cc source-path-base64=ZG9jcy9TT1VSQ0VTLm1k -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="cae70f7f79d9ef694e1fa4755a395940995f86327cc9d46b1be7935a5b3a21cc">
+  <title>Sources and Comparator Lessons</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/SOURCES.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="sources-and-comparator-lessons">Sources and Comparator Lessons</h1>
+  <h2 id="research-authority">Research authority</h2>
+  <p><code>VERIFIED</code>: This inventory records the implementation brief's reviewed research baseline of 2026-07-23. Recheck drift-prone platform behavior and comparator status before making a current release claim.</p>
+  <h2 id="apple-platform">Apple platform</h2>
+  <ul>
+  <li><a href="https://developer.apple.com/documentation/swiftui/menubarextra">SwiftUI MenuBarExtra</a></li>
+  <li><a href="https://developer.apple.com/documentation/servicemanagement/smappservice">ServiceManagement SMAppService</a></li>
+  <li><a href="https://developer.apple.com/documentation/servicemanagement/smappservice/mainapp">SMAppService mainApp</a></li>
+  <li><a href="https://developer.apple.com/documentation/appkit/nspasteboard">NSPasteboard</a></li>
+  <li><a href="https://developer.apple.com/documentation/appkit/nspasteboard/changecount">NSPasteboard changeCount</a></li>
+  <li><a href="https://developer.apple.com/documentation/appkit/nspasteboarditem">NSPasteboardItem</a></li>
+  <li><a href="https://developer.apple.com/documentation/appkit/nspasteboard/accessbehavior-swift.enum">NSPasteboard access behavior</a></li>
+  <li><a href="https://developer.apple.com/documentation/updates/appkit">AppKit pasteboard privacy update</a></li>
+  <li><a href="https://developer.apple.com/documentation/security/app-sandbox">App Sandbox</a></li>
+  <li><a href="https://developer.apple.com/documentation/xcode/preparing-your-app-for-distribution">Preparing an app for distribution</a></li>
+  <li><a href="https://developer.apple.com/documentation/technotes/tn3127-inside-code-signing-requirements">Inside Code Signing Requirements</a></li>
+  <li><a href="https://support.apple.com/guide/mac-help/mchl40d5b86b/mac">Search Clipboard History</a></li>
+  <li><a href="https://support.apple.com/guide/shortcuts-mac/apd163eb9f95/mac">Run a Shortcut with a keyboard shortcut</a></li>
+</ul>
+  <p><code>VERIFIED</code>: These sources support the menu, login-item, pasteboard-generation, permission, sandbox, signing, Clipboard History, and user-created Shortcut boundaries.</p>
+  <h2 id="url-and-authentication-standards">URL and authentication standards</h2>
+  <ul>
+  <li><a href="https://developer.apple.com/documentation/foundation/nsurlcomponents/queryitems">URLComponents queryItems</a></li>
+  <li><a href="https://github.com/swiftlang/swift-foundation/blob/main/Sources/FoundationEssentials/URL/URLComponents.swift">Swift Foundation URLComponents source</a></li>
+  <li><a href="https://www.rfc-editor.org/info/rfc3986/">RFC 3986</a></li>
+  <li><a href="https://www.rfc-editor.org/info/rfc6749/">OAuth 2.0</a></li>
+  <li><a href="https://datatracker.ietf.org/doc/html/rfc7636">PKCE RFC 7636</a></li>
+  <li><a href="https://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core</a></li>
+  <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/developerguide/sigv4-query-string-auth.html">AWS S3 SigV4 query authentication</a></li>
+  <li><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-signed-urls.html">CloudFront signed URLs</a></li>
+  <li><a href="https://docs.cloud.google.com/storage/docs/access-control/signed-urls">Google Cloud signed URLs</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas">Azure service SAS</a></li>
+</ul>
+  <p><code>VERIFIED</code>: Reconstruction APIs can change spelling; structural parsing must precede decoding; signed/authentication tuples justify immutable whole-link protection.</p>
+  <h2 id="initial-rule-provenance">Initial rule provenance</h2>
+  <ul>
+  <li><a href="https://support.google.com/analytics/answer/10917952">Google Analytics campaign URL builder</a></li>
+  <li><a href="https://support.google.com/google-ads/answer/3095550">Google Click ID</a></li>
+  <li><a href="https://support.google.com/campaignmanager/answer/9182069">Campaign Manager click identifiers</a></li>
+  <li><a href="https://support.google.com/google-ads/answer/16297842">GBRAID and WBRAID</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/advertising/msa-help/hlp_ba_conc_microsoftclickidcheck">Microsoft Click ID</a></li>
+  <li><a href="https://ads.tiktok.com/help/article/tiktok-click-id">TikTok Click ID</a></li>
+  <li><a href="https://mailchimp.com/developer/marketing/docs/e-commerce/">Mailchimp e-commerce tracking</a></li>
+  <li><a href="https://developers.google.com/youtube/player_parameters">YouTube player parameters</a></li>
+  <li><a href="https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/MapLinks/MapLinks.html">Apple Map Links</a></li>
+  <li><a href="https://developers.google.com/maps/documentation/urls/get-started">Google Maps URLs</a></li>
+  <li><a href="https://affiliate-program.amazon.com/help/operating/agreement/">Amazon Associates agreement</a></li>
+</ul>
+  <p><code>INFERENCE</code>: <code>fbclid</code>, YouTube <code>si</code>, X/Twitter share fields, and Instagram share fields have community or behavioral evidence but lack equivalent current first-party semantic guarantees. Their documentation and rule confidence must say so.</p>
+  <h2 id="comparator-review">Comparator review</h2>
+  <table>
+  <thead>
+    <tr>
+      <th scope="col">Project</th>
+      <th scope="col">Reviewed lesson</th>
+      <th scope="col">Reuse policy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://github.com/rknightuk/TrackerZapper">TrackerZapper</a></td>
+      <td><code>VERIFIED</code>: Sandboxed menu utility, but first-item/content suppression, <code>.string</code> rewrite, broad rules, and 20 Hz polling risk loss and false positives</td>
+      <td>MIT reference only; do not fork</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/p0deje/Maccy">Maccy</a></td>
+      <td><code>VERIFIED</code>: Serialized polling, typed inventories, source marker, and sensitive markers are useful; history/updater/auto-paste are out of scope</td>
+      <td>MIT concepts only</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/Clipy/Clipy">Clipy</a></td>
+      <td><code>VERIFIED</code>: Serialized 500 ms monitoring is useful; persistence, Sparkle, Firebase, and paste automation are out of scope</td>
+      <td>MIT concepts only</td>
+    </tr>
+    <tr>
+      <td><a href="https://sindresorhus.com/pure-paste">Pure Paste</a></td>
+      <td><code>VERIFIED</code>: Publicly documents representation loss and cleaner races; proprietary implementation has no reuse license</td>
+      <td>Behavioral benchmark only</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/brave/brave-core/blob/master/components/url_sanitizer/core/browser/url_sanitizer_service.cc">Brave sanitizer</a></td>
+      <td><code>VERIFIED</code>: Strict HTTP(S), host/path scope, and raw token removal inform conservative independent design</td>
+      <td>MPL-2.0 files/rules are not copied</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/ClearURLs/Addon">ClearURLs</a></td>
+      <td><code>VERIFIED</code>: Broad regex/redirect/remote machinery and historical global <code>t</code> regression demonstrate false-positive risk</td>
+      <td>LGPL source/rules are not copied</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/AdguardTeam/AdguardFilters">AdGuard tracking filters</a></td>
+      <td><code>VERIFIED</code>: Active allowlist evidence is useful for regression research</td>
+      <td>GPL data is not embedded or derived</td>
+    </tr>
+    <tr>
+      <td><a href="https://cleanlinks.app/en">Clean Links</a></td>
+      <td><code>VERIFIED</code>: Broad proprietary product with undisclosed representation handling</td>
+      <td>Product comparator only</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/arraypress/swift-url-stripper">swift-url-stripper</a></td>
+      <td><code>VERIFIED</code>: MIT package reconstructs through <code>URLComponents</code> and removes unsafe generic names</td>
+      <td>Do not add</td>
+    </tr>
+  </tbody>
+</table>
+  <p><code>RECOMMENDATION</code>: The implementation is original and dependency-free. Comparator code and datasets are not copied. License notes guide conservative non-reuse and are not legal advice.</p>
+  <h2 id="distribution-references">Distribution references</h2>
+  <ul>
+  <li><a href="https://developer.apple.com/support/compare-memberships/">Apple membership comparison</a></li>
+  <li><a href="https://developer.apple.com/support/developer-id/">Developer ID</a></li>
+  <li><a href="https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution">Notarizing macOS software</a></li>
+</ul>
+  <p><code>RECOMMENDATION</code>: Version 1 uses local ad-hoc signing. Personal Team is only an optional local fallback; Developer ID/notarization and Mac App Store distribution are separate later scopes requiring paid membership.</p>
+</body>
+</html>

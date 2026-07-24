@@ -1,0 +1,70 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=47415036725f18a6222bd70de2669bd4dd3f0a53fd6869bbc852a2a481182156 source-path-base64=UkVBRE1FLm1k -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="47415036725f18a6222bd70de2669bd4dd3f0a53fd6869bbc852a2a481182156">
+  <title>Tracker Free</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>README.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="tracker-free">Tracker Free</h1>
+  <p>Tracker Free is a native macOS menu-bar utility that removes known tracking query parameters from qualifying copied links using conservative, user-auditable rules.</p>
+  <p><code>RECOMMENDATION</code>: Treat every ambiguity as a reason to leave the clipboard unchanged. Tracker Free does not claim to identify every tracker, anonymize a URL, clean every paste, or remove path, cookie, fingerprinting, referrer, redirect, or server-side tracking.</p>
+  <h2 id="version-1-scope">Version 1 scope</h2>
+  <ul>
+  <li>Automatic monitoring of new General-pasteboard generations.</li>
+  <li>Manual cleaning through the menu and a <code>Clean Current Clipboard</code> App Intent.</li>
+  <li>Enabled, timed pause, indefinite pause, Skip Next, and memory-only Restore Original controls.</li>
+  <li>Structured built-in and user removal/preservation rules with local import and export.</li>
+  <li>Launch at Login through <code>SMAppService.mainApp</code>.</li>
+  <li>App Sandbox, Hardened Runtime, and no network client or server entitlement.</li>
+  <li>Swift 6, a macOS 13 deployment target, and local ad-hoc signing.</li>
+</ul>
+  <p><code>RECOMMENDATION</code>: Version 1 handles exactly one unambiguous plain-text and/or URL pasteboard item. It skips rich, custom, multiple-item, remote, sensitive, malformed, literal-Unicode, local-network, redirect-wrapper, and shortener values.</p>
+  <h2 id="privacy-summary">Privacy summary</h2>
+  <p>Tracker Free does not persist clipboard contents in its own files, database, analytics, or logs.</p>
+  <p><code>VERIFIED</code>: The General pasteboard participates in Universal Clipboard, and current macOS can retain clipboard generations in system Clipboard History. Tracker Free cannot retract an original value that already synchronized or erase selected system-history entries. Cleaned and restored generations use <code>.currentHostOnly</code>.</p>
+  <p>See <a href="docs/PRIVACY.html">Privacy</a> for the complete data-lifecycle and platform limitations.</p>
+  <h2 id="project-documentation">Project documentation</h2>
+  <ul>
+  <li><a href="AGENTS.html">Repository instructions</a></li>
+  <li><a href="docs/PROJECT.html">Project</a></li>
+  <li><a href="docs/STATUS.html">Current status</a></li>
+  <li><a href="docs/ARCHITECTURE.html">Architecture</a></li>
+  <li><a href="docs/RULES.html">Rules</a></li>
+  <li><a href="docs/DECISIONS.html">Decisions</a></li>
+  <li><a href="docs/PRIVACY.html">Privacy</a></li>
+  <li><a href="docs/TESTING.html">Testing</a></li>
+  <li><a href="docs/FAILURE_MATRIX.html">Failure matrix</a></li>
+  <li><a href="docs/SOURCES.html">Sources</a></li>
+  <li><a href="docs/SKILLS.html">Skills and workflows</a></li>
+  <li><a href="docs/LOG.html">Project log</a></li>
+  <li><a href="docs/wiki.html">Wiki index</a></li>
+</ul>
+  <h2 id="documentation-parity">Documentation parity</h2>
+  <p>Markdown is canonical. Never edit generated HTML directly.</p>
+  <pre><code class="language-sh">swift Scripts/DocsParity.swift --generate
+swift Scripts/DocsParity.swift --check
+xcrun swift Scripts/DocsParityIntegrationTests.swift</code></pre>
+  <p><code>VERIFIED</code>: The generator discovers only Git-visible tracked or non-ignored files through NUL-delimited Git output. It refuses symlink sources/outputs, unmanaged same-basename HTML, unsupported structured formats, and malformed ownership markers. Writes are atomic per companion, and only marker-owned orphans are removed.</p>
+  <h2 id="development-status">Development status</h2>
+  <p>See <a href="docs/STATUS.html">Current status</a>. The implementation and isolated automated suites are complete and passing on the recorded build host. Installed-Release, real General-pasteboard permission, login-item, Shortcut, energy, and cross-application workflow claims remain <code>OPEN</code> until observed from the final installed application.</p>
+</body>
+</html>

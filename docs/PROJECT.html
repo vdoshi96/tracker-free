@@ -1,0 +1,76 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=54eda202b749155ad083c6eddcaf312f398f57710754646a1858a7918032849d source-path-base64=ZG9jcy9QUk9KRUNULm1k -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="54eda202b749155ad083c6eddcaf312f398f57710754646a1858a7918032849d">
+  <title>Project</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/PROJECT.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="project">Project</h1>
+  <h2 id="goal">Goal</h2>
+  <p>Build a production-quality native macOS application named Tracker Free.</p>
+  <p><code>RECOMMENDATION</code>: Tracker Free removes known tracking query parameters from qualifying copied links using conservative, user-auditable rules.</p>
+  <p><code>RECOMMENDATION</code>: Unknown parameters remain unchanged. Any ambiguity, parser failure, unsupported pasteboard type, race, sensitive marker, or rule conflict leaves the original clipboard unchanged.</p>
+  <h2 id="product-boundary">Product boundary</h2>
+  <p>Version 1 is a local-only <code>MenuBarExtra(.menu)</code> utility with an ordinary Settings scene, <code>LSUIElement</code>, App Sandbox, Hardened Runtime, no network entitlement, and no runtime third-party dependency.</p>
+  <p>Version 1 includes:</p>
+  <ul>
+  <li>Generation-based General-pasteboard monitoring.</li>
+  <li>Manual cleaning and a <code>Clean Current Clipboard</code> App Intent.</li>
+  <li>Requested enabled state distinct from operational state.</li>
+  <li>Skip Next, timed/indefinite pause, and one memory-only undo token.</li>
+  <li>Local structured rule preferences, validation, import, export, and reset.</li>
+  <li>Launch at Login through <code>SMAppService.mainApp</code>.</li>
+  <li>A macOS 13 deployment floor with Swift 6 strict concurrency.</li>
+  <li>A locally ad-hoc-signed Release installation.</li>
+</ul>
+  <p>Version 1 excludes:</p>
+  <ul>
+  <li>Embedded, prose, Markdown, HTML, source-code, command, or multiple-URL rewriting.</li>
+  <li>Redirect resolution, shortener expansion, DNS, link previews, or any web request.</li>
+  <li>Recursive nested-URL cleaning.</li>
+  <li>Rich-text cloning, clipboard history, or disk-backed undo.</li>
+  <li>Arbitrary regular expressions, scripts, JavaScript, or remote rules.</li>
+  <li>Global key monitoring, event taps, synthetic paste, Accessibility, Automation, or Input Monitoring.</li>
+  <li>Analytics, telemetry, remote crash reporting, updater, or server.</li>
+  <li>Literal Unicode URL transformation.</li>
+  <li>Affiliate-identifier removal by default.</li>
+  <li>Developer ID, notarization, Mac App Store, or paid-membership distribution work.</li>
+</ul>
+  <h2 id="truthful-language">Truthful language</h2>
+  <p>Do not claim that Tracker Free:</p>
+  <ul>
+  <li>Identifies or removes every tracker.</li>
+  <li>Makes a URL anonymous.</li>
+  <li>Guarantees every paste receives the cleaned value.</li>
+  <li>Cleans every URL from every application.</li>
+  <li>Removes path tracking, cookies, fingerprinting, referrers, redirects, or server-side tracking.</li>
+  <li>Prevents macOS from storing clipboard content.</li>
+</ul>
+  <h2 id="definition-of-done">Definition of done</h2>
+  <p><code>VERIFIED</code>: The production implementation, deterministic engine, coordinator, rules, isolated pasteboard integration, Swift Testing/XCTest suites, XCUITest Settings/status inventory, bounded-input acceptance, and Release transform/stress checks are implemented and passing on the current build host.</p>
+  <p><code>OPEN</code>: The release is complete only after the remaining installed-application, signing/entitlement, real permission, login-item, Shortcut, energy, runtime-network, cross-application, documentation-parity, and repository-hygiene gates in <a href="TESTING.html">Testing</a> and <a href="STATUS.html">Current status</a> are evidenced.</p>
+  <h2 id="research-baseline">Research baseline</h2>
+  <p><code>VERIFIED</code>: The implementation brief uses a research baseline of 2026-07-23 and records macOS 26.6 build 25G70, Xcode 26.6 build 17F113, the macOS 26.5 SDK, and Swift 6.3.3.</p>
+  <p><code>VERIFIED</code>: The current build host is macOS 26.6 build 25G70 with Xcode 26.6 build 17F113.</p>
+  <p><code>OPEN</code>: Compilation targets macOS 13, but runtime compatibility on macOS 13 through 15 must not be claimed without coverage.</p>
+</body>
+</html>

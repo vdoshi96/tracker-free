@@ -1,0 +1,54 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=f572e238c20a9eb586373cdce04860b503618d66693e31edef15a42bd7ad2c50 source-path-base64=ZG9jcy9TS0lMTFMubWQ= -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="f572e238c20a9eb586373cdce04860b503618d66693e31edef15a42bd7ad2c50">
+  <title>Skills and Workflows</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/SKILLS.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="skills-and-workflows">Skills and Workflows</h1>
+  <h2 id="documentation-workflow">Documentation workflow</h2>
+  <p><code>RECOMMENDATION</code>: Edit canonical Markdown, then regenerate and check every HTML companion.</p>
+  <pre><code class="language-sh">swift Scripts/DocsParity.swift --generate
+swift Scripts/DocsParity.swift --check
+xcrun swift Scripts/DocsParityIntegrationTests.swift</code></pre>
+  <p><code>VERIFIED</code>: The integration test runs only in temporary Git repositories. It covers deterministic output, missing/stale detection, local-link rewrites, stable duplicate heading IDs, unmanaged collisions, marker-owned orphan cleanup, unsupported RST rejection, and source/output symlink rejection.</p>
+  <h2 id="implementation-workflow">Implementation workflow</h2>
+  <p><code>RECOMMENDATION</code>: Implement in dependency order:</p>
+  <ol>
+  <li>Strict URL recognizer and raw query tokenizer.</li>
+  <li>Whole-link protection classifier.</li>
+  <li>Typed rule model, compiler, persistence, import/export, and initial rules.</li>
+  <li>Pure byte-preserving cleaner.</li>
+  <li>Fake and named pasteboard clients.</li>
+  <li>Serialized coordinator, write verification/rollback, pause, skip, undo, conflicts, and lifecycle.</li>
+  <li>Permission UX, menu, Settings, App Intent, and login item.</li>
+  <li>Automated tests, installed Release QA, privacy/network observation, performance, and documentation closeout.</li>
+</ol>
+  <h2 id="evidence-workflow">Evidence workflow</h2>
+  <p><code>RECOMMENDATION</code>: Use synthetic URLs and isolated pasteboards. Ordinary tests must not read <code>NSPasteboard.general</code>. Never capture personal clipboard values in logs, screenshots, attachments, reports, filenames, assertions, or signposts.</p>
+  <p><code>RECOMMENDATION</code>: Keep only the newest completed QA evidence run unless preservation is explicitly requested.</p>
+  <p><code>RECOMMENDATION</code>: Before closeout, update <a href="STATUS.html">Current status</a>, <a href="TESTING.html">Testing</a>, and <a href="LOG.html">Project log</a> from exact observed commands and outcomes; then regenerate HTML.</p>
+  <h2 id="repository-workflow">Repository workflow</h2>
+  <p><code>RECOMMENDATION</code>: Inspect the active repository authority and preserve unrelated modified, untracked, ignored, generated, or private work. Where a GitHub remote exists, complete the required branch push, main merge, local-main update, and completed-worktree cleanup. Never invent an external repository when none is configured.</p>
+  <p>The durable in-repository instruction and authority map is <a href="../AGENTS.html">AGENTS.md</a>. Treat <a href="STATUS.html">Current status</a> as current truth and append completed evidence to <a href="LOG.html">Project log</a> without rewriting intentional history.</p>
+</body>
+</html>

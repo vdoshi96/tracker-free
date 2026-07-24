@@ -1,0 +1,66 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=27d64a6a296b12776cb74e57c7659733c8cf38f6eb871b6cdc4b429890840103 source-path-base64=ZG9jcy9ERUNJU0lPTlMubWQ= -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="27d64a6a296b12776cb74e57c7659733c8cf38f6eb871b6cdc4b429890840103">
+  <title>Decisions</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/DECISIONS.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="decisions">Decisions</h1>
+  <h2 id="decision-labels">Decision labels</h2>
+  <ul>
+  <li><code>VERIFIED</code>: Supported directly by a reviewed source or local test.</li>
+  <li><code>INFERENCE</code>: Drawn from reviewed behavior or API surfaces.</li>
+  <li><code>RECOMMENDATION</code>: Chosen implementation policy.</li>
+  <li><code>OPEN</code>: Requires local verification or future work.</li>
+</ul>
+  <h2 id="platform-and-lifecycle">Platform and lifecycle</h2>
+  <p><code>VERIFIED</code>: <code>MenuBarExtra</code> and <code>SMAppService</code> support the macOS 13 deployment floor.</p>
+  <p><code>RECOMMENDATION</code>: Use SwiftUI lifecycle, <code>MenuBarExtra(.menu)</code>, an ordinary Settings scene, and <code>LSUIElement</code>. Retain <code>NSStatusItem</code> only as a fallback if local QA proves required menu behavior impossible.</p>
+  <p><code>RECOMMENDATION</code>: Put every mutable pasteboard, permission, generation, pause, skip, undo, conflict, lifecycle, and menu-status transition in one <code>@MainActor</code> coordinator.</p>
+  <p><code>RECOMMENDATION</code>: Use a synchronous immutable <code>Sendable</code> cleaning engine. Never pass <code>NSPasteboard</code> or <code>NSPasteboardItem</code> across actors/tasks and never add <code>@unchecked Sendable</code>.</p>
+  <h2 id="pasteboard-monitoring">Pasteboard monitoring</h2>
+  <p><code>VERIFIED</code>: <code>changeCount</code> is the public generation/ownership token, and one-item eligibility cannot be established with <code>string(forType:)</code>.</p>
+  <p><code>INFERENCE</code>: AppKit has no dependable public General-pasteboard change notification, so serialized polling is the dependable public design.</p>
+  <p><code>RECOMMENDATION</code>: Poll at 250 ms with tolerance only while operational, and count-only at one second while disabled, paused, permission-blocked, sleeping, session-inactive, or conflict-paused.</p>
+  <p><code>RECOMMENDATION</code>: Baseline at startup, re-enable, resume, expiry, wake, and session activation. Never retroactively inspect or clean an older generation.</p>
+  <h2 id="safe-writes">Safe writes</h2>
+  <p><code>VERIFIED</code>: There is no public transactional compare-and-swap pasteboard API.</p>
+  <p><code>RECOMMENDATION</code>: Build a complete bounded replacement first, make a final generation check, then perform a tiny synchronous <code>.currentHostOnly</code> clear/write/readback sequence with a private marker.</p>
+  <p><code>RECOMMENDATION</code>: Roll back only when the current generation proves the app still owns the failed clear/write. Never overwrite a newer owner.</p>
+  <p><code>OPEN</code>: A micro-race remains between final check and ownership mutation, and process death after clear can leave an empty generation. Minimize and disclose both windows.</p>
+  <h2 id="url-handling">URL handling</h2>
+  <p><code>VERIFIED</code>: <code>URLComponents</code> reconstruction can normalize percent spellings and literal Unicode.</p>
+  <p><code>RECOMMENDATION</code>: Use Foundation only for strict validation and inspection. Emit output only by deleting approved raw query fields from the original ASCII URL.</p>
+  <p><code>RECOMMENDATION</code>: Never recursively clean nested values, resolve redirects, alter fragments, or transform literal Unicode URLs in version 1.</p>
+  <h2 id="rule-policy">Rule policy</h2>
+  <p><code>RECOMMENDATION</code>: Unknown parameters remain preserved. Exact documented names are safer than broad prefixes.</p>
+  <p><code>RECOMMENDATION</code>: User preserve rules outrank user remove rules. User remove rules outrank ordinary built-ins only after a warning. Immutable URL guards outrank everything.</p>
+  <p><code>RECOMMENDATION</code>: Rules are bundled or user-authored local typed data. No regex, script, wildcard host, remote fetch, or executable predicate is accepted.</p>
+  <h2 id="privacy-and-distribution">Privacy and distribution</h2>
+  <p><code>RECOMMENDATION</code>: No analytics, updater, remote rules, resolver, URL session, WebKit, network client/server entitlement, or copied-link navigation.</p>
+  <p><code>RECOMMENDATION</code>: Same-Mac use is a sandboxed Hardened Runtime Release build signed ad hoc to run locally. Do not claim Developer ID signing or notarization.</p>
+  <p><code>RECOMMENDATION</code>: Cleaned and restored generations are <code>.currentHostOnly</code>, because the original generation's Universal Clipboard origin cannot be determined.</p>
+  <h2 id="documentation">Documentation</h2>
+  <p><code>RECOMMENDATION</code>: Markdown is canonical. Generated same-directory HTML contains an ownership marker and source SHA and must never be edited by hand.</p>
+  <p><code>VERIFIED</code>: <code>Scripts/DocsParity.swift</code> uses Git-visible NUL-delimited discovery, stable heading IDs, local Markdown-link rewriting, per-file atomic writes, collision/symlink protection, marker-owned orphan cleanup, and fail-closed unsupported-format handling.</p>
+</body>
+</html>

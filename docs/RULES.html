@@ -1,0 +1,143 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=4d34e8e86070ed61bbd90fc3b19bd8305046a55687a456c67ce56946c07364a8 source-path-base64=ZG9jcy9SVUxFUy5tZA== -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="4d34e8e86070ed61bbd90fc3b19bd8305046a55687a456c67ce56946c07364a8">
+  <title>Rules</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/RULES.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="rules">Rules</h1>
+  <h2 id="model">Model</h2>
+  <p>Bundled and imported rules use a versioned typed model with:</p>
+  <ul>
+  <li><code>schemaVersion</code>, <code>ruleSetRevision</code>, <code>reviewedDate</code>, unique <code>id</code>, and <code>enabled</code>.</li>
+  <li>User-rule documents may include <code>reviewedBuiltInRuleSetRevision</code>, the exact built-in revision against which preserve/removal overlaps were acknowledged.</li>
+  <li><code>origin</code>: <code>builtIn</code> or <code>user</code>.</li>
+  <li><code>action</code>: <code>removeParameter</code>, <code>preserveParameter</code>, or <code>hardProtectURL</code>.</li>
+  <li><code>matcher</code>: <code>exactASCIIName</code> or <code>asciiPrefix</code>.</li>
+  <li>ASCII <code>name</code> and explicit case sensitivity.</li>
+  <li><code>scope</code>: <code>global</code>, <code>host</code>, or <code>hostPath</code>.</li>
+  <li>Exact canonical hosts, <code>includeSubdomains</code> defaulting false, and an optional safe path constraint.</li>
+  <li><code>confidence</code>: <code>verified</code>, <code>inferred</code>, or <code>experimental</code>.</li>
+  <li>Bounded explanation and provenance URL.</li>
+</ul>
+  <p>Safe path constraints are absent, a literal prefix with segment-boundary semantics, or a small typed predicate such as <code>xStatusPermalink</code>, <code>youtubeShareContent</code>, or <code>instagramContent</code>.</p>
+  <p><code>RECOMMENDATION</code>: User data cannot contain regex, JavaScript, scripts, wildcard hosts, arbitrary executable predicates, or remote-update instructions.</p>
+  <h2 id="precedence">Precedence</h2>
+  <ol>
+  <li>Parse/type/size/generation failure and immutable whole-URL guards preserve the whole URL.</li>
+  <li>Matching user preserve rule.</li>
+  <li>Matching user remove rule.</li>
+  <li>Most-specific matching built-in scope: host+path, host, then global.</li>
+  <li>At equal built-in specificity, preserve wins.</li>
+  <li>At equal action/scope, exact name wins over prefix.</li>
+  <li>An unresolved collision preserves and reports a generic rule conflict.</li>
+  <li>Unknown parameters preserve.</li>
+</ol>
+  <p><code>RECOMMENDATION</code>: A user remove can override an ordinary built-in preserve only after a clear warning. It can never override a hard guard. Contradictory imports are rejected atomically; runtime uncertainty still preserves.</p>
+  <p><code>VERIFIED</code>: A confirmed preserve/removal overlap is persisted with the current built-in revision and remains enabled across relaunch while that revision is unchanged. When the bundled revision changes, only enabled user removals that may overlap built-in preserves are disabled for individual re-review; unrelated user rules retain their state.</p>
+  <h2 id="initial-global-removals">Initial global removals</h2>
+  <p>All are enabled, exact, lowercase, and case-sensitive.</p>
+  <p>Google Analytics campaign fields:</p>
+  <ul>
+  <li><code>utm_id</code></li>
+  <li><code>utm_source</code></li>
+  <li><code>utm_medium</code></li>
+  <li><code>utm_campaign</code></li>
+  <li><code>utm_source_platform</code></li>
+  <li><code>utm_term</code></li>
+  <li><code>utm_content</code></li>
+  <li><code>utm_creative_format</code></li>
+  <li><code>utm_marketing_tactic</code></li>
+</ul>
+  <p>Google advertising identifiers:</p>
+  <ul>
+  <li><code>gclid</code></li>
+  <li><code>dclid</code></li>
+  <li><code>gbraid</code></li>
+  <li><code>wbraid</code></li>
+  <li><code>gad_source</code></li>
+  <li><code>gad_campaignid</code></li>
+</ul>
+  <p>Other attribution identifiers:</p>
+  <ul>
+  <li><code>msclkid</code></li>
+  <li><code>ttclid</code></li>
+  <li><code>mc_cid</code></li>
+  <li><code>mc_eid</code></li>
+  <li><code>fbclid</code></li>
+</ul>
+  <p><code>RECOMMENDATION</code>: Support <code>utm_</code> prefix rules in the model but leave the broad prefix disabled by default.</p>
+  <h2 id="built-in-functional-preserves">Built-in functional preserves</h2>
+  <p>Ordinary built-in preserve rules include:</p>
+  <p><code>q</code>, <code>query</code>, <code>v</code>, <code>id</code>, <code>s</code>, <code>t</code>, <code>code</code>, <code>token</code>, <code>state</code>, <code>page</code>, <code>sort</code>, <code>filter</code>, <code>variant</code>, <code>sku</code>, <code>list</code>, <code>index</code>, <code>start</code>, <code>end</code>, <code>time_continue</code>, <code>origin</code>, <code>destination</code>, <code>waypoints</code>, <code>tag</code>, <code>linkCode</code>, <code>th</code>, and <code>psc</code>.</p>
+  <p>Unknown-preserve remains the final safety net. A verified host/path-specific removal can outrank a less-specific built-in preserve.</p>
+  <h2 id="scoped-rules">Scoped rules</h2>
+  <h3 id="x-and-twitter">X and Twitter</h3>
+  <p><code>INFERENCE</code>: Remove <code>s</code> and <code>t</code> only on exact <code>x.com</code>, <code>www.x.com</code>, <code>twitter.com</code>, <code>www.twitter.com</code>, and <code>mobile.twitter.com</code> hosts, and only on anchored <code>/{valid-handle}/status/{digits}</code> or <code>/i/web/status/{digits}</code> forms with permitted status suffixes.</p>
+  <p>Hard-exclude redirect, authentication, account, settings, reset, and email paths. Never remove <code>t</code> globally.</p>
+  <h3 id="youtube">YouTube</h3>
+  <p><code>INFERENCE</code>: Remove <code>si</code> only on exact <code>youtu.be</code> video paths and exact YouTube hosts with valid <code>/watch?v=...</code> or <code>/shorts/{id}</code> content routes.</p>
+  <p>Preserve <code>v</code>, <code>list</code>, <code>index</code>, <code>t</code>, <code>start</code>, <code>end</code>, <code>playlist</code>, <code>listType</code>, <code>pp</code>, <code>feature</code>, captions, and player-control fields.</p>
+  <h3 id="instagram">Instagram</h3>
+  <p><code>INFERENCE</code>: Remove <code>igsh</code> and <code>igshid</code> only from exact Instagram canonical <code>/p/</code>, <code>/reel/</code>, and <code>/tv/</code> content routes. Do not clean login, redirect, challenge, or account paths.</p>
+  <h3 id="tiktok-reddit-amazon-and-email">TikTok, Reddit, Amazon, and email</h3>
+  <ul>
+  <li>TikTok: global <code>ttclid</code> remains; preserve <code>_r</code>, <code>_t</code>, <code>is_from_webapp</code>, <code>sender_device</code>, and opaque short links.</li>
+  <li>Reddit: preserve <code>context</code>, <code>depth</code>, <code>sort</code>, <code>t</code>, <code>before</code>, <code>after</code>, <code>count</code>, <code>share_id</code>, <code>ref_campaign</code>, and <code>ref_source</code>.</li>
+  <li>Amazon: no Amazon-specific removal; preserve <code>tag</code>, <code>linkCode</code>, <code>th</code>, <code>psc</code>, <code>qid</code>, <code>sr</code>, <code>smid</code>, functional product/search fields, and <code>/ref=</code> path components.</li>
+  <li>Email: remove only <code>mc_cid</code> and <code>mc_eid</code> from ordinary content links; preserve unverified identifiers such as <code>mkt_tok</code>, <code>_hsenc</code>, <code>_hsmi</code>, and <code>elqTrackId</code>.</li>
+</ul>
+  <p><code>RECOMMENDATION</code>: Affiliate attribution is not treated as inert tracking and remains unless a future explicit opt-in category is reviewed.</p>
+  <h2 id="immutable-whole-link-guards">Immutable whole-link guards</h2>
+  <p>Protect the entire URL case-insensitively when applicable:</p>
+  <ul>
+  <li>Any <code>x-amz-</code> or <code>x-goog-</code> query name.</li>
+  <li><code>sig</code>, <code>signature</code>, AWS legacy, CloudFront, Google Cloud, Azure SAS, or recognizable signature/HMAC tuples.</li>
+  <li>OAuth/OIDC authorization tuples, PKCE markers, <code>code</code> with <code>state</code>, access/id/refresh tokens, SAML/RelayState, or token-response fragments.</li>
+  <li>Sensitive names including <code>token</code>, <code>reset_token</code>, <code>verify_token</code>, <code>invite</code>, <code>invitation</code>, <code>ticket</code>, <code>hmac</code>, <code>jwt</code>, <code>auth</code>, <code>session</code>, <code>api_key</code>, <code>key</code>, <code>signature</code>, and <code>sig</code>.</li>
+  <li>A nonempty query or token-like fragment on oauth/authorize/callback/login/signin/magic/reset/password/verify/verification/invite/invitation/accept/activate/unsubscribe path components.</li>
+  <li><code>.ics</code> and recognized invitation/acceptance links.</li>
+  <li>Known Facebook/Google redirect wrappers.</li>
+  <li>Opaque shorteners including <code>t.co</code>, <code>bit.ly</code>, <code>tinyurl.com</code>, <code>ow.ly</code>, <code>buff.ly</code>, <code>amzn.to</code>, <code>vm.tiktok.com</code>, and <code>vt.tiktok.com</code>.</li>
+  <li>IP, loopback, private/local, <code>.local</code>, and single-label hosts.</li>
+</ul>
+  <p><code>RECOMMENDATION</code>: False protection is preferable to invalidating a signed, authentication, invitation, or functional URL.</p>
+  <h2 id="import-export-and-reset">Import, export, and reset</h2>
+  <ul>
+  <li>Import/export contains rules only, never URLs, clipboard samples, history, or result status.</li>
+  <li>Maximum import size is 256 KiB, maximum user-rule count is 512, and maximum combined rule count is 2,048.</li>
+  <li>Rule IDs and parameter names are at most 128 UTF-8 bytes; explanations are at most 1,024 bytes; provenance URLs are at most 2,048 bytes.</li>
+  <li>A scope contains at most 64 exact hosts, and a literal path constraint is at most 512 bytes including its leading slash.</li>
+  <li>Reviewed dates must be valid Gregorian <code>YYYY-MM-DD</code> dates, not merely date-shaped strings.</li>
+  <li>Validate schema, unique IDs, ASCII names, hosts, safe paths, field bounds, dates, and conflicts in a temporary value.</li>
+  <li>Show a conflict/summary preview and replace live rules only after explicit confirmation.</li>
+  <li>Persist atomically in the sandbox container.</li>
+  <li>Export through a user-selected save panel.</li>
+  <li>Reset built-in enablement and user rules as distinct actions.</li>
+  <li>Hard guards cannot be disabled.</li>
+</ul>
+  <p><code>VERIFIED</code>: Boundary tests cover the byte, count, field, host, path, and Gregorian-date limits. Imported user <code>hardProtectURL</code> rules are additive: they may protect more URLs but cannot relax or replace immutable or built-in guards.</p>
+  <p><code>VERIFIED</code>: Enabling an imported user removal that overlaps an enabled built-in preserve requires explicit acknowledgement. A built-in bootstrap or persisted-rule validation failure fails closed for automatic, menu-manual, and App Intent cleaning.</p>
+  <p><code>VERIFIED</code>: If persisted user rules become incompatible with a newer built-in bundle, including an ID collision, the entire incompatible user set is excluded from the live snapshot, built-ins remain active, and Settings displays a load-validation warning. The stored file is not silently rewritten.</p>
+  <p><code>RECOMMENDATION</code>: <code>TrackerFree/Resources/BuiltInRules.json</code> is the reviewed built-in authority. Its <code>ruleSetRevision</code> must increase whenever reviewed built-in rule content changes, including action, matcher, name, scope, host/path constraints, enablement, confidence, explanation, or provenance. This revision bump is the invalidation signal that forces affected user-removal overrides through re-review.</p>
+</body>
+</html>

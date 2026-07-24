@@ -1,0 +1,285 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=6d2db9543e6bab9a75b57e728d5b211f59252fdea372934336164e242a10cba1 source-path-base64=ZG9jcy9GQUlMVVJFX01BVFJJWC5tZA== -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="6d2db9543e6bab9a75b57e728d5b211f59252fdea372934336164e242a10cba1">
+  <title>Failure-Mode Matrix</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/FAILURE_MATRIX.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="failure-mode-matrix">Failure-Mode Matrix</h1>
+  <p><code>RECOMMENDATION</code>: Any row marked as a version-1 blocker must have preventive design, runtime handling, and a passing deterministic test before release.</p>
+  <table>
+  <thead>
+    <tr>
+      <th scope="col">Failure mode</th>
+      <th scope="col">Severity</th>
+      <th scope="col">Preventive design and runtime mitigation</th>
+      <th scope="col">Required evidence</th>
+      <th scope="col">Blocks v1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Clipboard erased or corrupted</td>
+      <td>Critical</td>
+      <td>Build replacement first; tiny verified commit; rollback only while owned</td>
+      <td>Inject clear/write/readback failures</td>
+      <td>Yes, except minimized disclosed process-death window</td>
+    </tr>
+    <tr>
+      <td>Rich text, image, or file replaced by text</td>
+      <td>Critical</td>
+      <td>Strict one-item/two-type allowlist</td>
+      <td>HTML, RTF/RTFD, image, file, custom fixtures</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Lazy/promised representation fails or stalls</td>
+      <td>High</td>
+      <td>Materialize only allowed data; reject nil, ownership loss, oversize, or a return later than 100 ms</td>
+      <td>Nil, ownership-loss, and 110 ms late-return tests</td>
+      <td>Yes, subject to disclosed synchronous limit</td>
+    </tr>
+    <tr>
+      <td>Self-triggered loop</td>
+      <td>High</td>
+      <td>Exact-generation suppression, marker support, no-op avoidance</td>
+      <td>Own-write loop test</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Competing cleaners oscillate</td>
+      <td>High</td>
+      <td>Idempotence and one write per generation; conflict pause</td>
+      <td>Fake competing transformer</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Functional parameter removed</td>
+      <td>High</td>
+      <td>Unknown-preserve, exact/scoped rules, undo and user preserve</td>
+      <td>Major-site fixture matrix</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Signed URL broken</td>
+      <td>Critical</td>
+      <td>Immutable signed-link guard</td>
+      <td>AWS, CloudFront, GCS, Azure fixtures</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>OAuth, login, reset, or invite broken</td>
+      <td>Critical</td>
+      <td>Immutable auth/token/path guard</td>
+      <td>OAuth, PKCE, reset, invite corpus</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Prose, code, Markdown, or command changed</td>
+      <td>High</td>
+      <td>Exact-one-URL recognizer</td>
+      <td>Prose, code, HTML, terminal fixtures</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Immediate paste receives original</td>
+      <td>Medium</td>
+      <td>Truthful polling model; manual clean/Intent</td>
+      <td>Rapid copy/paste timing QA</td>
+      <td>No if disclosed</td>
+    </tr>
+    <tr>
+      <td>Wrong generation cleaned</td>
+      <td>High</td>
+      <td>Recheck after reads and immediately before write</td>
+      <td>Generation change during transform</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stale undo overwrites newer copy</td>
+      <td>Critical</td>
+      <td>Generation, output, and marker-bound undo</td>
+      <td>Concurrent undo race</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>URL spelling changes</td>
+      <td>High</td>
+      <td>Raw whole-field deletion only; postconditions</td>
+      <td><code>+</code>, <code>%HH</code>, order, duplicate, empty-field corpus</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Rule collision</td>
+      <td>High</td>
+      <td>Deterministic precedence; atomic import rejection</td>
+      <td>Permutation/conflict tests</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Lookalike domain matches</td>
+      <td>High</td>
+      <td>Exact/dot-boundary canonical host matching</td>
+      <td><code>notx.com</code>, <code>x.com.evil</code>, Punycode fixtures</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Oversized or malformed input consumes resources</td>
+      <td>High</td>
+      <td>64 KiB input, 8 KiB path/fragment, 256 query-field, and 128 path/fragment-component caps</td>
+      <td>Fuzz, exact boundaries, and 8 MiB early-rejection tests</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Polling wastes CPU or memory</td>
+      <td>Medium</td>
+      <td>Tolerant count-only fast path; 500 ms fallback</td>
+      <td>Idle energy and stress measurements</td>
+      <td>No if target met</td>
+    </tr>
+    <tr>
+      <td>Clipboard content enters diagnostics</td>
+      <td>Critical</td>
+      <td>Metadata-only logger and redacted assertions</td>
+      <td>Sentinel source/log/persistence scan</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Compromised remote rules</td>
+      <td>Critical</td>
+      <td>No remote mechanism</td>
+      <td>Static and runtime no-network checks</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Redirect resolution leaks URL</td>
+      <td>Critical</td>
+      <td>No resolver, URL session, DNS, or preview</td>
+      <td>Zero-network integration observation</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Pasteboard access denied or prompt loops</td>
+      <td>High</td>
+      <td>Contextual onboarding and operational permission state</td>
+      <td>Four-state permission matrix</td>
+      <td>Yes unless truthful/safe</td>
+    </tr>
+    <tr>
+      <td>Launch at Login fails</td>
+      <td>Medium</td>
+      <td>Installed stable identity and actual service status</td>
+      <td>Register/unregister/status QA</td>
+      <td>No for core cleaning</td>
+    </tr>
+    <tr>
+      <td>Signing identity changes behavior</td>
+      <td>Medium</td>
+      <td>Stable ID/path and documented re-onboarding</td>
+      <td>Rebuild/reinstall comparison</td>
+      <td>No if documented</td>
+    </tr>
+    <tr>
+      <td>macOS update changes pasteboard behavior</td>
+      <td>Medium</td>
+      <td>Isolated adapter and fail-open handling</td>
+      <td>Supported-version smoke matrix</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>App killed during mutation or lifecycle change</td>
+      <td>High</td>
+      <td>Tiny no-await window and lifecycle wipe/baseline</td>
+      <td>Forced termination and lifecycle tests</td>
+      <td>Yes for avoidable corruption</td>
+    </tr>
+    <tr>
+      <td>Menu state disagrees with processing</td>
+      <td>Medium</td>
+      <td>Coordinator as single source of truth</td>
+      <td>State/UI assertions</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Skip Next consumed by irrelevant event</td>
+      <td>Medium</td>
+      <td>Consume only at stable would-change decision</td>
+      <td>Non-URL/no-op/own-write sequences</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Undo occurs after another write</td>
+      <td>Critical</td>
+      <td>Immediate generation/readback recheck</td>
+      <td>Newer-copy race</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Universal Clipboard conflict</td>
+      <td>Medium-high</td>
+      <td>Remote-marker skip and <code>.currentHostOnly</code> writes</td>
+      <td>Synthetic cross-device QA</td>
+      <td>No if safe/disclosed</td>
+    </tr>
+    <tr>
+      <td>Clipboard-manager conflict</td>
+      <td>Medium-high</td>
+      <td>Generation checks, idempotence, conflict pause</td>
+      <td>Existing-manager QA</td>
+      <td>No if no corruption</td>
+    </tr>
+    <tr>
+      <td>Tests touch personal clipboard</td>
+      <td>Critical</td>
+      <td>Fake/named default; isolated opt-in guard</td>
+      <td>Static <code>.general</code> allowlist</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>macOS Clipboard History retains values</td>
+      <td>High privacy</td>
+      <td>Accurate disclosure; no app persistence</td>
+      <td>System-setting review without content exposure</td>
+      <td>No, platform limitation</td>
+    </tr>
+    <tr>
+      <td>Host-only rewrite changes cross-device expectations</td>
+      <td>Medium</td>
+      <td>Explicit local-only generation policy</td>
+      <td>Synthetic Universal Clipboard QA</td>
+      <td>No if disclosed</td>
+    </tr>
+    <tr>
+      <td>Malicious or huge custom-rule import</td>
+      <td>High</td>
+      <td>Typed non-executable schema, size/count/conflict caps</td>
+      <td>Adversarial import tests</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+  <h2 id="irreducible-and-empirical-limits">Irreducible and empirical limits</h2>
+  <p><code>OPEN</code>: Public AppKit has no atomic compare-and-swap or process-death-safe pasteboard transaction. The final-check/write and post-clear process-death windows may ship only when minimized, tested around all avoidable failures, and disclosed.</p>
+  <p><code>OPEN</code>: A synchronous lazy pasteboard provider has no public cancellation API. Measure and fail open after the call, but do not claim a timeout can prevent the provider from blocking unless local API evidence supports it.</p>
+  <p><code>VERIFIED</code>: Conflict recovery is explicit-only. Tests prove that generation increments remain count-only while conflict-paused, that sleep/wake and session round-trips preserve the pause, and that explicit resume clears the short pair ring and baselines the current generation without reading it.</p>
+</body>
+</html>

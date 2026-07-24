@@ -1,0 +1,196 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=2f32f08fbf0f3c0900f4f057e25a09e56e4116070c108b874c852960d9e59a9c source-path-base64=ZG9jcy9URVNUSU5HLm1k -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="2f32f08fbf0f3c0900f4f057e25a09e56e4116070c108b874c852960d9e59a9c">
+  <title>Testing and QA</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/TESTING.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="testing-and-qa">Testing and QA</h1>
+  <h2 id="test-isolation">Test isolation</h2>
+  <p><code>VERIFIED</code>: Swift Testing covers the pure recognizer, tokenizer, protected-link classifier, rules, cleaner, parameterized fixtures, precedence order reversal, and deterministic encoding/idempotence properties.</p>
+  <p><code>VERIFIED</code>: XCTest covers fake-pasteboard coordinator races, named <code>NSPasteboard.withUniqueName()</code> integration, timers, lifecycle, bounded imports, Release acceptance/performance, and XCUITest menu/Settings behavior.</p>
+  <p><code>VERIFIED</code>: The settled Debug run reported 79 top-level tests: 78 passed, one expected Release-only performance skip, and zero failures. Parameterized/device-configuration expansion reported 150 passing cases and zero failures.</p>
+  <p>Ordinary automated tests must never use <code>NSPasteboard.general</code>. A static guard permits <code>.general</code> only in the production adapter and a separately isolated opt-in target.</p>
+  <p>Any General-pasteboard integration test must:</p>
+  <ul>
+  <li>Be excluded from CI and guarded by an explicit environment flag.</li>
+  <li>Run only in a disposable test user/session with synthetic data.</li>
+  <li>Seed a known generation rather than snapshotting a personal clipboard.</li>
+  <li>Restore only while the test still owns the generation.</li>
+  <li>Leave newer user content untouched.</li>
+</ul>
+  <p><code>RECOMMENDATION</code>: Serialize any suite touching a shared pasteboard. Test diagnostics use fixture IDs and redacted assertions so a failure does not print clipboard values.</p>
+  <h2 id="core-deterministic-properties">Core deterministic properties</h2>
+  <ul>
+  <li><code>clean(clean(x)) == clean(x)</code>.</li>
+  <li>No matching rule means identity and no write.</li>
+  <li>Output never grows.</li>
+  <li>Retained raw query fields are an exact ordered subsequence.</li>
+  <li>Scheme, authority, raw path, fragment, and accepted envelope remain byte-identical.</li>
+  <li>Only approved whole fields and an unnecessary query delimiter disappear.</li>
+  <li>Every protected fixture remains byte-identical.</li>
+  <li>Invalid Unicode, percent encoding, and delimiters never crash or trap.</li>
+  <li>Runtime and allocation stay bounded.</li>
+  <li>Rule ordering cannot alter precedence.</li>
+  <li>Host fuzz includes uppercase, suffix attacks, ports, Punycode, IPv4/IPv6, and explicit subdomains.</li>
+</ul>
+  <h2 id="regression-corpus">Regression corpus</h2>
+  <p>All 74 table-driven fixtures from the implementation brief pass. Required groups are:</p>
+  <table>
+  <thead>
+    <tr>
+      <th scope="col">Cases</th>
+      <th scope="col">Coverage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1–18</td>
+      <td>Global removals, duplicates, empty fields, <code>+</code>, exact <code>%HH</code> retention, case sensitivity, disabled <code>utm_</code>, fragments, invalid encoding, semicolons, nested encoded values, no-op, and removal-only queries</td>
+    </tr>
+    <tr>
+      <td>19–33</td>
+      <td>Exact X/Twitter, YouTube, Instagram, TikTok, Reddit, Amazon, email-content, and protected-email behavior</td>
+    </tr>
+    <tr>
+      <td>34–38</td>
+      <td>Maps, search, product variants, calendar/invitation, and <code>.ics</code> functional preservation</td>
+    </tr>
+    <tr>
+      <td>39–46</td>
+      <td>AWS, Google Cloud, CloudFront, Azure SAS, reset, OAuth callback/authorization, and token fragments</td>
+    </tr>
+    <tr>
+      <td>47–55</td>
+      <td>Facebook/Google wrappers, shorteners, userinfo, non-HTTP schemes, scheme-relative forms, localhost, private IP, and IPv6</td>
+    </tr>
+    <tr>
+      <td>56–65</td>
+      <td>Literal Unicode, Punycode, exact whitespace envelope, leading/multiple newlines, prose/code/commands/multiple URLs, and 64 KiB boundary</td>
+    </tr>
+    <tr>
+      <td>66–74</td>
+      <td>Plain text, URL, matching/conflicting dual representations, rich/custom/multiple/remote values, lazy ownership loss, and foreign marker</td>
+    </tr>
+  </tbody>
+</table>
+  <p>Critical byte fixtures include:</p>
+  <ul>
+  <li><code>https://e.test/p?ut%6D_source=x&amp;a=%2f&amp;b=%41</code> becoming <code>https://e.test/p?a=%2f&amp;b=%41</code>.</li>
+  <li><code>https://e.test/p?utm_source=x&amp;&amp;q=</code> becoming <code>https://e.test/p?&amp;q=</code>.</li>
+  <li><code>https://e.test/p?UTM_source=x</code> remaining unchanged.</li>
+  <li><code>https://x.com.evil/user/status/123?s=20&amp;t=abc</code> remaining unchanged.</li>
+  <li>Signed/authentication/invitation values with otherwise removable fields remaining unchanged.</li>
+  <li><code>&quot; \thttps://e.test/p?utm_source=x \r\n&quot;</code> retaining its exact envelope around the cleaned core.</li>
+  <li>Encoded wrapper paths with dot segments, residual <code>%</code>, C0/DEL bytes, or decoded slash/backslash separators remaining protected as ambiguous.</li>
+</ul>
+  <h2 id="coordinator-and-failure-injection">Coordinator and failure injection</h2>
+  <p>Passing sequences include:</p>
+  <ul>
+  <li>Own-generation suppression and later identical external content.</li>
+  <li>Generation change during allowed-representation materialization.</li>
+  <li>Rule revision change before commit.</li>
+  <li>Disable, pause, sleep/session loss, or conflict immediately before commit.</li>
+  <li>Clear failure, object-write failure, readback mismatch, successful owned rollback, and ownership loss before rollback.</li>
+  <li>No-op, protected, unsupported, race, and disabled events while Skip Next remains armed.</li>
+  <li>Manual clean bypassing pause/disable/Skip without consuming Skip.</li>
+  <li>Valid undo, marker/output mismatch, newer-copy race, restore ownership, and single-use invalidation.</li>
+  <li>Competing cleaner oscillation, threshold entry, explicit recovery, and distinct-generation recovery.</li>
+  <li>Timed pause across relaunch and wall-clock changes.</li>
+  <li>Wake/session activation baseline without retroactive cleaning.</li>
+  <li>A 110 ms synchronous provider return rejected after the call; nil and ownership-loss providers also preserve.</li>
+  <li>Permission-prompt preparation that baselines a newly observed generation, remains no-write, and refreshes the permission state.</li>
+  <li>Built-in bootstrap failure that disables persisted user removals for automatic, manual, and App Intent callers.</li>
+  <li>Conflict pause that survives sleep/wake and session inactive/active round-trips, remains count-only, and clears only after explicit resume.</li>
+  <li>A persisted user-rule ID colliding with a newer built-in ID that fails closed to built-ins and surfaces a load warning.</li>
+  <li>A confirmed built-in-preserve override that persists across same-revision relaunch, then disables only overlapping enabled user removals when <code>reviewedBuiltInRuleSetRevision</code> no longer matches the bundled revision.</li>
+</ul>
+  <h2 id="performance-acceptance">Performance acceptance</h2>
+  <p>Automated Release acceptance on the current Mac requires:</p>
+  <ul>
+  <li>250 ms active polling with 25–50 ms tolerance and approximately four idle count checks per second.</li>
+  <li>Average idle CPU at or below 0.5% over ten minutes.</li>
+  <li>Activity Monitor Energy Impact remains Low.</li>
+  <li>Less than 5 MiB memory growth after baseline across 10,000 synthetic coordinator events.</li>
+  <li>A 64 KiB pure transform completes within 10 ms.</li>
+</ul>
+  <p><code>VERIFIED</code>: The final Release acceptance suite passed 4 of 4 tests. Each transform input was exactly 65,536 bytes and each median used 21 samples:</p>
+  <table>
+  <thead>
+    <tr>
+      <th scope="col">Case</th>
+      <th scope="col">Median</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Large query value</td>
+      <td>9.089834 ms</td>
+    </tr>
+    <tr>
+      <td>Many query fields</td>
+      <td>1.985042 ms</td>
+    </tr>
+    <tr>
+      <td>Many fragment fields</td>
+      <td>0.551584 ms</td>
+    </tr>
+    <tr>
+      <td>Many path components</td>
+      <td>0.607709 ms</td>
+    </tr>
+    <tr>
+      <td>Long parameter name against 512 rules</td>
+      <td>5.48 ms</td>
+    </tr>
+  </tbody>
+</table>
+  <p>Retained resident growth after 10,000 synthetic coordinator events was 49,152 bytes.</p>
+  <p><code>OPEN</code>: The installed app still needs the ten-minute idle CPU and Activity Monitor Energy Impact observation. The Release microbenchmarks validate the pure transform and coordinator-retention targets, not installed idle energy.</p>
+  <p><code>RECOMMENDATION</code>: If measured polling misses the energy target, move to 500 ms and document evidence rather than weakening safety.</p>
+  <h2 id="manual-qa-matrix">Manual QA matrix</h2>
+  <p>Use only synthetic, non-secret values in:</p>
+  <ul>
+  <li>Safari, Firefox, Chrome, X/Twitter, Mail, Messages, Notes, and Terminal.</li>
+  <li>At least one already-installed clipboard manager; do not install one without approval.</li>
+  <li>Address-bar copy, Copy Link Address, rich hyperlink, plain text, URL type, matching/mismatched dual representations, rich/custom/multiple values, and rapid repeated copies.</li>
+  <li>Immediate paste, enabled/disabled, every pause, Skip Next, manual clean, valid/stale undo, conflict, relaunch, and safe sleep/wake.</li>
+  <li>Permission <code>.default</code>, <code>.ask</code>, <code>.alwaysAllow</code>, and <code>.alwaysDeny</code>.</li>
+  <li>Universal Clipboard and Clipboard History enabled/disabled without exposing existing values.</li>
+  <li>Launch at Login status, Settings focus, App Intent through Shortcuts, no Dock icon, menu-extra removal, and installed ad-hoc behavior.</li>
+</ul>
+  <p>Do not automate logout, privacy-setting changes, or disruptive sleep without explicit user approval. Fast-user/session changes are performed only when safely testable.</p>
+  <h2 id="release-verification-commands">Release verification commands</h2>
+  <p>The project and scheme are both <code>TrackerFree</code>. Use the following reproducible automated commands:</p>
+  <pre><code class="language-sh">xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO test -only-testing:TrackerFreeTests
+xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO test -only-testing:TrackerFreeUITests/TrackerFreeUITests/testSettingsSceneCanOpenForDocklessApp
+xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES test -only-testing:TrackerFreeTests/AcceptanceTests
+xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release build
+codesign --verify --deep --strict '/Applications/Tracker Free.app'
+xcrun swift Scripts/DocsParity.swift --check
+xcrun swift Scripts/DocsParityIntegrationTests.swift</code></pre>
+  <p><code>VERIFIED</code>: <code>ENABLE_TESTABILITY=YES</code> is passed only to the Release acceptance test invocation so the test bundle can load the application module. The generated shipping Release configuration remains <code>ENABLE_TESTABILITY=NO</code>.</p>
+  <p>The handoff records exact commands, statuses, macOS/Xcode versions, installed path, signature/entitlements, permission/login results, static/runtime network checks, performance, Git SHA/parity/worktrees, limitations, and non-actions.</p>
+  <p><code>VERIFIED</code>: The installed Release passes strict signature verification, is byte-identical to the settled artifact, has Hardened Runtime plus the expected sandbox/file entitlements only, includes App Intent metadata, launches, and had no sockets in a bounded post-launch <code>lsof</code> snapshot.</p>
+  <p><code>OPEN</code>: Longer runtime-network and energy observation, real permission states, login-item behavior, Shortcut execution, installed visual interaction, and cross-application manual QA remain unclaimed until directly observed.</p>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=c9c6402c113d1bbb8830c67a44827ccb7d4d8b025e48ee329fb3c69f027ef6ea source-path-base64=ZG9jcy9TVEFUVVMubWQ= -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="c9c6402c113d1bbb8830c67a44827ccb7d4d8b025e48ee329fb3c69f027ef6ea">
+  <title>Current Status</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/STATUS.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="current-status">Current Status</h1>
+  <h2 id="snapshot">Snapshot</h2>
+  <p><code>VERIFIED</code>: Tracker Free's production implementation and isolated automated suites are complete and passing on macOS 26.6 build 25G70 with Xcode 26.6 build 17F113.</p>
+  <p><code>VERIFIED</code>: The settled Debug run reported 79 top-level tests: 78 passed and one Release-only performance case was intentionally skipped. Expanded device/configuration reporting recorded 150 passes and zero failures across XCTest and Swift Testing engine, rule, coordinator, named-pasteboard, lifecycle, race, persistence, and static-architecture cases. The isolated XCUITest verifies the menu-extra status inventory and Settings focus for the dockless app.</p>
+  <p><code>VERIFIED</code>: Release acceptance passed 4 of 4 tests with all 74 numbered fixtures, exact 64 KiB structural cases, 8 MiB early rejection, a maximum 512-rule shape, and 10,000 synthetic coordinator events. The observed worst 64 KiB median was 9.089834 ms, the long-name/512-rule median was 5.48 ms, and retained resident growth was 49,152 bytes.</p>
+  <p><code>VERIFIED</code>: The settled Release is installed at <code>/Applications/Tracker Free.app</code>. Its executable is byte-identical to the verified build (SHA-256 <code>c507d4de0e53fd0fdeedbee4517465e675c0de68652fd9b68442a76a310b27f1</code>), passes strict code-signature verification, and launches successfully.</p>
+  <p><code>OPEN</code>: Real General-pasteboard permission behavior, App Intent execution through Shortcuts, Launch at Login, ten-minute runtime network/energy observation, and the cross-application manual matrix still require current evidence before release.</p>
+  <p><code>RECOMMENDATION</code>: Treat this file as the current authority. Preserve dated entries in <a href="LOG.html">Project log</a> as history rather than rewriting them.</p>
+  <h2 id="release-gates">Release gates</h2>
+  <ul>
+  <li><code>VERIFIED</code>: Debug build/full tests and Release acceptance tests pass with Xcode 26.6.</li>
+  <li><code>VERIFIED</code>: Swift 6 strict-concurrency compilation passes without <code>@unchecked Sendable</code> or unsafe concurrency suppression.</li>
+  <li><code>VERIFIED</code>: Pure-engine, coordinator, named-pasteboard, isolated UI, Release performance, and deterministic fuzz/property tests pass.</li>
+  <li><code>VERIFIED</code>: All 74 required numbered fixtures pass; additional encoded-path and structural-bound variants also pass.</li>
+  <li><code>VERIFIED</code>: Decoded classification paths fail closed as ambiguous when they contain dot segments, a residual percent sign, C0/DEL bytes, or decoded slash/backslash separators.</li>
+  <li><code>VERIFIED</code>: Ordinary automated tests use fake or uniquely named pasteboards; a static allowlist isolates <code>NSPasteboard.general</code> to the production adapter.</li>
+  <li><code>VERIFIED</code>: The installed Release has <code>LSUIElement=true</code>, bundle identifier <code>com.vishal.TrackerFree</code>, macOS 13.0 minimum, and launches as the expected menu-bar process. A direct installed visual Dock/menu inspection remains open because the desktop-control service timed out for the windowless app.</li>
+  <li><code>VERIFIED</code>: Automatic and manual cleaning are demonstrated on fake and uniquely named synthetic pasteboards; installed General-pasteboard demonstration remains open.</li>
+  <li><code>VERIFIED</code>: Rich, multiple, remote, sensitive, protected, malformed, and ambiguous synthetic values remain unchanged.</li>
+  <li><code>VERIFIED</code>: Skip Next, timed and indefinite pause, undo, stale undo, sleep/wake, session loss, termination, and relaunch semantics pass deterministic tests. Conflict pause survives sleep/wake and session round-trips and permits only explicit resume.</li>
+  <li><code>OPEN</code>: Permission-required states are truthful on macOS 26.6.</li>
+  <li><code>OPEN</code>: App Intent works through a user-created Shortcut without Accessibility permission.</li>
+  <li><code>OPEN</code>: <code>SMAppService.mainApp</code> is verified from the installed app or a precise blocker is recorded.</li>
+  <li><code>VERIFIED</code>: The installed app's ad-hoc signature has Hardened Runtime enabled. Its only entitlements are App Sandbox and user-selected file read/write; network client/server and <code>get-task-allow</code> are absent.</li>
+  <li><code>VERIFIED</code>: Static scans find no network APIs, and a bounded post-launch <code>lsof</code> snapshot found no open network sockets for the installed process. A longer installed observation remains open.</li>
+  <li><code>VERIFIED</code>: Static architecture checks reject network/global-input APIs and confine logging to privacy-safe metadata; installed runtime log/persistence sentinel observation remains open.</li>
+  <li><code>VERIFIED</code>: Release acceptance meets the less-than-5-MiB retained-growth and less-than-10-ms transform targets. Ten-minute installed idle CPU and energy observation remains open.</li>
+  <li><code>OPEN</code>: Safari, Firefox, Chrome, X, Mail, Messages, Notes, Terminal, and an existing clipboard manager are checked where available.</li>
+  <li><code>OPEN</code>: Universal Clipboard and Clipboard History limitations are checked using synthetic content only.</li>
+  <li><code>VERIFIED</code>: XCUITest confirms Settings focus and status-menu inventory under <code>LSUIElement</code>; full installed menu behavior remains open.</li>
+  <li><code>VERIFIED</code>: Final documentation parity passes for all 14 canonical Markdown sources, including root <code>AGENTS.md</code>; integration safeguards and HTML parsing also pass.</li>
+  <li><code>VERIFIED</code>: Local <code>main</code> is clean and is the sole worktree; the completed feature branch was removed. No Git remote is configured, so push and remote-<code>main</code> parity cannot be performed without inventing an external destination.</li>
+</ul>
+  <h2 id="implemented-safety-bounds">Implemented safety bounds</h2>
+  <ul>
+  <li>Clipboard/URL input: 64 KiB combined UTF-8.</li>
+  <li>Raw path and fragment: 8 KiB each.</li>
+  <li>Raw query: 256 fields.</li>
+  <li>Whole-link protection inspection: 128 path components and 128 fragment fields.</li>
+  <li>Rule import: 256 KiB; 512 user rules; 2,048 total rules.</li>
+  <li>Rule ID/name: 128 bytes; explanation: 1,024 bytes; provenance URL: 2,048 bytes.</li>
+  <li>Rule scope: 64 hosts; literal path constraint: 512 bytes.</li>
+  <li>Lazy representation duration: reject after a return later than 100 ms.</li>
+</ul>
+  <p><code>VERIFIED</code>: A persisted user-rule set that collides with a newer built-in ID is rejected at load, built-ins remain active, and Settings surfaces the validation warning instead of silently dropping the condition.</p>
+  <p><code>VERIFIED</code>: User-rule documents persist the optional built-in revision reviewed for preserve/removal overlaps. Confirmed overrides survive relaunch at the same revision; a changed bundled revision disables only affected enabled user removals and requires individual acknowledgement before re-enabling.</p>
+  <p><code>VERIFIED</code>: The installed bundle contains App Intent metadata for “Clean Current Clipboard.” End-to-end execution from a user-created Shortcut remains open.</p>
+  <p><code>OPEN</code>: A synchronous <code>NSPasteboardItem.data(forType:)</code> provider cannot be preempted through the public API. The 110 ms late-provider test proves post-return rejection, not cancellation or a bound on allocations performed inside AppKit.</p>
+  <h2 id="empirical-questions">Empirical questions</h2>
+  <p>Keep conservative behavior while these remain unresolved:</p>
+  <ol>
+  <li><code>OPEN</code>: Exact <code>.default</code>, <code>.ask</code>, <code>.alwaysAllow</code>, and <code>.alwaysDeny</code> alert and Settings behavior on macOS 26.6.</li>
+  <li><code>OPEN</code>: Whether count or type inspection itself can prompt in tested flows.</li>
+  <li><code>OPEN</code>: Whether App Intent clipboard access receives user-originated treatment.</li>
+  <li><code>OPEN</code>: Whether <code>SMAppService.mainApp</code> remains reliable across installed ad-hoc rebuilds.</li>
+  <li><code>OPEN</code>: Whether Personal Team signing materially improves local identity stability.</li>
+  <li><code>OPEN</code>: Exact Safari, Firefox, and Chrome representation inventories for address-bar, Copy Link, and rich-link copies.</li>
+  <li><code>OPEN</code>: Whether any proven inert browser metadata type should enter the allowlist.</li>
+  <li><code>OPEN</code>: Measured 250 ms versus 500 ms energy behavior.</li>
+  <li><code>OPEN</code>: Runtime behavior on macOS 13, 14, 15.3, and 15.4/15.5.</li>
+  <li><code>OPEN</code>: Whether a future opt-in should allow rewritten values to participate in Universal Clipboard.</li>
+</ol>
+  <h2 id="non-actions">Non-actions</h2>
+  <p><code>VERIFIED</code>: QA did not inspect or capture the current clipboard, change privacy settings, contact a network service, or create an external repository. It installed only the locally built Tracker Free bundle requested by this project.</p>
+</body>
+</html>

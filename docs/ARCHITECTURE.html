@@ -1,0 +1,193 @@
+<!-- tracker-free-docs-parity:v1 source-sha256=8fed45d82861e6803458cc05e845149407125d4b1cbbc5dec2dbb5fd5626b10e source-path-base64=ZG9jcy9BUkNISVRFQ1RVUkUubWQ= -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Tracker Free DocsParity v1">
+  <meta name="source-sha256" content="8fed45d82861e6803458cc05e845149407125d4b1cbbc5dec2dbb5fd5626b10e">
+  <title>Architecture</title>
+  <style>
+    :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    body { max-width: 74rem; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; margin-top: 1.6em; }
+    a { color: LinkText; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .25rem; padding: .08rem .3rem; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 18%, Canvas); border-radius: .5rem; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+    th, td { border: 1px solid color-mix(in srgb, CanvasText 22%, Canvas); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+    blockquote { border-left: .25rem solid color-mix(in srgb, CanvasText 25%, Canvas); margin-left: 0; padding-left: 1rem; }
+    .generated-note { color: color-mix(in srgb, CanvasText 65%, Canvas); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <p class="generated-note">Generated from <code>docs/ARCHITECTURE.md</code>. Edit the Markdown source, then regenerate.</p>
+  <h1 id="architecture">Architecture</h1>
+  <h2 id="design-objective">Design objective</h2>
+  <p><code>RECOMMENDATION</code>: Prefer a false skip to clipboard corruption or functional-link damage. Every state transition is serialized, every transformation is bounded and synchronous, and every uncertainty returns a no-write decision.</p>
+  <h2 id="component-map">Component map</h2>
+  <table>
+  <thead>
+    <tr>
+      <th scope="col">Component</th>
+      <th scope="col">Responsibility</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SwiftUI app lifecycle</td>
+      <td><code>MenuBarExtra(.menu)</code>, Settings, About, and utility-only lifecycle</td>
+    </tr>
+    <tr>
+      <td><code>ClipboardCoordinator</code></td>
+      <td><code>@MainActor</code> owner of all General-pasteboard access and mutable operational state</td>
+    </tr>
+    <tr>
+      <td><code>PasteboardClient</code></td>
+      <td>General, named, and fake adapters without leaking AppKit objects across isolation</td>
+    </tr>
+    <tr>
+      <td>URL recognizer</td>
+      <td>Strict ASCII HTTP(S) validation and envelope classification</td>
+    </tr>
+    <tr>
+      <td>Raw query tokenizer</td>
+      <td>Structural field splitting and strict name decoding without reconstruction</td>
+    </tr>
+    <tr>
+      <td>Protected-link classifier</td>
+      <td>Immutable signed, authentication, sensitive, redirect, shortener, invitation, and local-target guards</td>
+    </tr>
+    <tr>
+      <td>Rule engine/store</td>
+      <td>Typed precedence over an atomically replaced immutable revisioned snapshot</td>
+    </tr>
+    <tr>
+      <td>Login item service</td>
+      <td>Actual <code>SMAppService.mainApp</code> status and explicit register/unregister</td>
+    </tr>
+    <tr>
+      <td>App Intent</td>
+      <td>User-initiated manual clean using the identical safety pipeline</td>
+    </tr>
+    <tr>
+      <td>Privacy-safe logger</td>
+      <td>Bounded enums, timings, counts, rule revision, and generic categories only</td>
+    </tr>
+  </tbody>
+</table>
+  <p>Core values include <code>PasteboardGeneration</code>, <code>PasteboardRepresentation</code>, <code>PasteboardSnapshot</code>, <code>EligibleClipboardValue</code>, <code>RuleSetSnapshot</code>, <code>CleanDecision</code>, <code>CleanResult</code>, <code>RemovedParameter</code>, <code>UndoToken</code>, <code>OperationalState</code>, <code>PermissionState</code>, <code>PauseState</code>, and <code>ConflictState</code>.</p>
+  <p><code>RECOMMENDATION</code>: These values are immutable and <code>Sendable</code> where they cross isolation. <code>NSPasteboard</code> and <code>NSPasteboardItem</code> remain inside the main-actor adapter call.</p>
+  <h2 id="startup-and-timers">Startup and timers</h2>
+  <ol>
+  <li>Load scalar preferences and atomically validate local custom rules.</li>
+  <li>Default requested enablement to off on a true first launch.</li>
+  <li>Set <code>lastObservedGeneration</code> to the current General-pasteboard <code>changeCount</code>.</li>
+  <li>Do not inspect or clean the preexisting clipboard.</li>
+  <li>Clear clipboard-derived RAM.</li>
+  <li>Determine guarded pasteboard access behavior where the API is available.</li>
+  <li>Attach workspace sleep, wake, session, logout, and termination observers.</li>
+  <li>Run a 250 ms timer with 25–50 ms tolerance while operational; otherwise run a one-second count-only timer.</li>
+</ol>
+  <p><code>RECOMMENDATION</code>: Disabled, paused, permission-blocked, sleeping, session-inactive, and conflict-paused states never inspect items or content.</p>
+  <h2 id="automatic-generation-state-machine">Automatic generation state machine</h2>
+  <ol>
+  <li>Read only <code>changeCount</code> as generation <code>G</code>.</li>
+  <li>Return if <code>G</code> is already observed; otherwise record it.</li>
+  <li>Suppress only when <code>G</code> equals the exact app-owned generation.</li>
+  <li>Invalidate stale undo when a new external generation appears.</li>
+  <li>Return without content access unless automation remains operational.</li>
+  <li>Capture immutable rule revision <code>R</code>.</li>
+  <li>Require exactly one item and inventory all advertised types.</li>
+  <li>Reject unsupported types before materializing text.</li>
+  <li>Materialize only allowed representations, then reject any read that exceeded the size or 100 ms post-read duration bound.</li>
+  <li>Recheck <code>changeCount == G</code> after every potentially lazy read.</li>
+  <li>Recognize, protect, and synchronously transform under <code>R</code>.</li>
+  <li>Return without writing when output bytes are identical.</li>
+  <li>Consume Skip Next only when a stable eligible value would otherwise change.</li>
+  <li>Recheck generation, rule revision, and operational state.</li>
+  <li>Build the complete fresh replacement item.</li>
+  <li>Commit synchronously and record only privacy-safe result metadata.</li>
+</ol>
+  <p><code>RECOMMENDATION</code>: A generation is processed at most once. Content equality never suppresses a later external generation.</p>
+  <h2 id="eligibility-and-representation-policy">Eligibility and representation policy</h2>
+  <p>An item is eligible only when:</p>
+  <ul>
+  <li><code>pasteboardItems.count == 1</code>.</li>
+  <li>Advertised content consists only of <code>public.utf8-plain-text</code> and/or <code>public.url</code>.</li>
+  <li>At least one allowed representation exists.</li>
+  <li>Combined allowed data is at most 64 KiB and valid UTF-8.</li>
+  <li>If both exist, the stripped plain-text URL core equals the URL representation exactly.</li>
+  <li>Every materialized value matches the original inventory while generation ownership remains unchanged.</li>
+</ul>
+  <p>Plain text may have an exact edge envelope: ASCII spaces/tabs before the URL, then ASCII spaces/tabs and at most one final LF or CRLF after it. The accepted envelope is preserved byte-for-byte.</p>
+  <p>Hard skips include HTML, RTF/RTFD, images, files, file promises, unknown/private/custom types, multiple items, failed or unstable lazy values, concealed/transient/autogenerated/remote markers, and a private Tracker Free marker on a non-owned generation.</p>
+  <p><code>OPEN</code>: <code>NSPasteboardItem.data(forType:)</code> is synchronous and has no public cancellation API. The implementation can reject a provider that returns after 100 ms, but cannot preempt that call or prevent it from allocating before it returns.</p>
+  <p><code>INFERENCE</code>: Concealed, transient, autogenerated, and remote identifiers are maintained community conventions rather than a complete official Apple contract.</p>
+  <h2 id="url-recognizer">URL recognizer</h2>
+  <p>The core must:</p>
+  <ul>
+  <li>Be ASCII only and begin case-insensitively with <code>http://</code> or <code>https://</code>.</li>
+  <li>Have a nonempty canonical host and a valid explicit port when present.</li>
+  <li>Contain no userinfo, backslash, NUL/control, malformed <code>%HH</code>, internal whitespace, or second literal HTTP(S) URL.</li>
+  <li>Not be scheme-relative, a non-HTTP scheme, an IP literal, loopback/private/local target, <code>.local</code>, or a single-label host.</li>
+  <li>Pass strict Foundation component inspection without Foundation repairing its spelling.</li>
+  <li>Fit within 64 KiB total, with at most 8 KiB each for the raw path and fragment.</li>
+</ul>
+  <p>Domain comparison is ASCII case-insensitive after canonical extraction and uses exact equality or a dot boundary. Path matching uses original percent-encoded segments; ambiguity preserves.</p>
+  <p>For whole-link classification only, each path component is strictly percent-decoded once. A decoded <code>.</code> or <code>..</code>, residual <code>%</code>, C0/DEL byte, slash, or backslash makes the classification path ambiguous and protects the entire URL. The original raw path remains the only output authority.</p>
+  <p><code>RECOMMENDATION</code>: ASCII Punycode may pass. Literal Unicode URLs remain unchanged in version 1.</p>
+  <h2 id="raw-query-surgery">Raw query surgery</h2>
+  <ol>
+  <li>Split at the first literal <code>#</code> and preserve the fragment exactly.</li>
+  <li>Find the first literal <code>?</code> before that fragment.</li>
+  <li>Return no-write when the query is absent/empty or no field is removable.</li>
+  <li>Fail open when the raw query contains a literal semicolon.</li>
+  <li>Split on literal <code>&amp;</code>, retaining empty subsequences.</li>
+  <li>Split each field at its first literal <code>=</code>.</li>
+  <li>Strictly percent-decode only the field name for matching; never translate <code>+</code>, decode a value, or permit non-ASCII decoded names.</li>
+  <li>Apply one decision to every duplicate occurrence.</li>
+  <li>Remove approved whole fields in all <code>name</code>, <code>name=</code>, and <code>name=value</code> forms.</li>
+  <li>Rejoin retained exact fields with <code>&amp;</code>.</li>
+  <li>Remove <code>?</code> only when no structural field remains; an empty retained field still preserves the delimiter.</li>
+  <li>Reattach the exact fragment and envelope and strictly validate again.</li>
+  <li>Assert byte-identical scheme, authority, path, fragment, and envelope; retained fields must be an exact ordered subsequence.</li>
+</ol>
+  <p>The raw query is capped at 256 fields. Whole-link protection inspection is capped at 128 path components and 128 fragment fields. Exceeding any structural bound preserves the input unchanged.</p>
+  <p><code>RECOMMENDATION</code>: Never emit a mutated <code>URL</code>, <code>URLComponents.string</code>, query, or query-item collection.</p>
+  <h2 id="commit-and-rollback">Commit and rollback</h2>
+  <ol>
+  <li>Make the final generation check.</li>
+  <li>Enter a tiny synchronous section with no <code>await</code>, log, UI callback, or rule lookup.</li>
+  <li>Call <code>prepareForNewContents(with: .currentHostOnly)</code>.</li>
+  <li>Write one newly constructed item with expected allowed values and <code>com.vishal.TrackerFree.cleaned-v1</code>.</li>
+  <li>Capture the actual final generation, which must not be inferred from an increment count.</li>
+  <li>While that generation remains current, read back the expected values and marker.</li>
+  <li>If write/readback fails and the app still owns the affected generation, immediately attempt an eager <code>.currentHostOnly</code> rollback.</li>
+  <li>Never roll back after another owner changes the generation.</li>
+</ol>
+  <p>On verified success, record the exact owned generation, cleaned allowed values, and one RAM-only undo token. On uncertainty, expose a generic failure and never claim success.</p>
+  <p><code>OPEN</code>: Public pasteboard APIs cannot eliminate the final-check/ownership micro-race or the process-death interval after clearing.</p>
+  <h2 id="pause-skip-undo-and-conflict">Pause, skip, undo, and conflict</h2>
+  <ul>
+  <li>Requested enabled state persists; re-enable baselines without cleaning current content.</li>
+  <li>Timed pause persists a wall-clock expiration and uses a monotonic/suspending clock while running where practical.</li>
+  <li>Indefinite pause persists until explicit resume.</li>
+  <li>Skip Next is RAM-only and is consumed only at the would-change decision for an external stable eligible unprotected URL.</li>
+  <li>Manual clean bypasses requested enablement, pause, and Skip Next but never bypasses safety.</li>
+  <li>Undo requires exact generation, allowed-output values, and private marker equality immediately before restore.</li>
+  <li>Restore uses <code>.currentHostOnly</code>, removes the marker, records the restore generation as owned, and clears the token.</li>
+  <li>A bounded short-lived RAM ring detects three identical app-produced original/output pairs within two seconds and enters conflict pause.</li>
+  <li>Conflict pause requires explicit user recovery; an unrelated generation increment never resumes automatic cleaning.</li>
+</ul>
+  <p><code>VERIFIED</code>: Sleep and session loss wipe the clipboard-derived pair ring and undo state but preserve an already-entered conflict-pause flag. Wake and session activation baseline without reading and remain conflict-paused; only explicit resume clears that state. Termination or process exit clears all RAM state.</p>
+  <p><code>RECOMMENDATION</code>: The conflict ring is the narrow exception to immediate generation cleanup: retain only the smallest two-second pair window and never a hash.</p>
+  <h2 id="lifecycle">Lifecycle</h2>
+  <p>Sleep, session resignation, logout, or termination cancels pending work, invalidates undo, and wipes clipboard-derived RAM. Wake and activation baseline current generation and never clean content copied while inactive. Relaunch loses undo and Skip Next.</p>
+  <h2 id="operational-and-ui-state">Operational and UI state</h2>
+  <p><code>RECOMMENDATION</code>: The coordinator is the single source of truth. Requested “Enabled” is distinct from operational “Automatic cleaning: On”; permission, pause, sleep/session, and conflict states must be visible and truthful.</p>
+  <p>The menu ordering and result language are specified in <a href="PROJECT.html">Project</a> and <a href="PRIVACY.html">Privacy</a>. Settings owns onboarding, rules, import/export/reset, privacy disclosures, login-item status, and Shortcut guidance.</p>
+</body>
+</html>
