@@ -47,3 +47,11 @@
 `OPEN`: Real permission states, installed visual Dock/menu interaction, Shortcut execution, Launch at Login, ten-minute idle CPU/energy/network observation, cross-application behavior, Universal Clipboard, and Clipboard History remain manual gates.
 
 `VERIFIED`: The implementation commit was fast-forwarded into clean local `main`, the completed feature branch was removed, and the repository has one worktree. No Git remote exists, so no push or remote-main reconciliation was attempted.
+
+## 2026-07-24 — public GitHub publication
+
+`VERIFIED`: After explicit user authorization, created the public [vdoshi96/tracker-free](https://github.com/vdoshi96/tracker-free) repository, configured it as `origin`, and pushed the existing two-commit `main` history. GitHub reported `main` at implementation commit `c47e655fddea0de56c434fd8552fd95bb09188c7` before this publication-documentation update.
+
+`VERIFIED`: The pre-publication review found no real credentials or private files in reachable Git history. Matches for token and secret terminology were source-code guards or synthetic security-test fixtures. No license was added; public visibility alone does not grant an open-source license.
+
+`VERIFIED`: Public publication did not alter the application implementation, installed bundle, prior QA evidence, or historical release claims. Current remote and parity state is maintained in [Current status](STATUS.md).

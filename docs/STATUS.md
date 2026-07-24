@@ -37,7 +37,7 @@
 - `OPEN`: Universal Clipboard and Clipboard History limitations are checked using synthetic content only.
 - `VERIFIED`: XCUITest confirms Settings focus and status-menu inventory under `LSUIElement`; full installed menu behavior remains open.
 - `VERIFIED`: Final documentation parity passes for all 14 canonical Markdown sources, including root `AGENTS.md`; integration safeguards and HTML parsing also pass.
-- `VERIFIED`: Local `main` is clean and is the sole worktree; the completed feature branch was removed. No Git remote is configured, so push and remote-`main` parity cannot be performed without inventing an external destination.
+- `VERIFIED`: The repository is public at [vdoshi96/tracker-free](https://github.com/vdoshi96/tracker-free). `origin` uses that GitHub repository, local `main` tracks `origin/main`, and repository closeout requires exact local/remote `main` parity.
 
 ## Implemented safety bounds
 
@@ -75,4 +75,4 @@ Keep conservative behavior while these remain unresolved:
 
 ## Non-actions
 
-`VERIFIED`: QA did not inspect or capture the current clipboard, change privacy settings, contact a network service, or create an external repository. It installed only the locally built Tracker Free bundle requested by this project.
+`VERIFIED`: The original application QA did not inspect or capture the current clipboard, change privacy settings, or contact a network service. Public GitHub publication was separately authorized and completed on 2026-07-24 without inspecting clipboard contents, changing the installed application, or rerunning application QA.
