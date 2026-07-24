@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=c9c6402c113d1bbb8830c67a44827ccb7d4d8b025e48ee329fb3c69f027ef6ea source-path-base64=ZG9jcy9TVEFUVVMubWQ= -->
+<!-- tracker-free-docs-parity:v1 source-sha256=516adb140622b0ba33d6d503fb7cc71f4ea57124ff920e834c8a4b09f02c6d1a source-path-base64=ZG9jcy9TVEFUVVMubWQ= -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="c9c6402c113d1bbb8830c67a44827ccb7d4d8b025e48ee329fb3c69f027ef6ea">
+  <meta name="source-sha256" content="516adb140622b0ba33d6d503fb7cc71f4ea57124ff920e834c8a4b09f02c6d1a">
   <title>Current Status</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -55,7 +55,7 @@
   <li><code>OPEN</code>: Universal Clipboard and Clipboard History limitations are checked using synthetic content only.</li>
   <li><code>VERIFIED</code>: XCUITest confirms Settings focus and status-menu inventory under <code>LSUIElement</code>; full installed menu behavior remains open.</li>
   <li><code>VERIFIED</code>: Final documentation parity passes for all 14 canonical Markdown sources, including root <code>AGENTS.md</code>; integration safeguards and HTML parsing also pass.</li>
-  <li><code>VERIFIED</code>: Local <code>main</code> is clean and is the sole worktree; the completed feature branch was removed. No Git remote is configured, so push and remote-<code>main</code> parity cannot be performed without inventing an external destination.</li>
+  <li><code>VERIFIED</code>: The repository is public at <a href="https://github.com/vdoshi96/tracker-free">vdoshi96/tracker-free</a>. <code>origin</code> uses that GitHub repository, local <code>main</code> tracks <code>origin/main</code>, and repository closeout requires exact local/remote <code>main</code> parity.</li>
 </ul>
   <h2 id="implemented-safety-bounds">Implemented safety bounds</h2>
   <ul>
@@ -87,6 +87,6 @@
   <li><code>OPEN</code>: Whether a future opt-in should allow rewritten values to participate in Universal Clipboard.</li>
 </ol>
   <h2 id="non-actions">Non-actions</h2>
-  <p><code>VERIFIED</code>: QA did not inspect or capture the current clipboard, change privacy settings, contact a network service, or create an external repository. It installed only the locally built Tracker Free bundle requested by this project.</p>
+  <p><code>VERIFIED</code>: The original application QA did not inspect or capture the current clipboard, change privacy settings, or contact a network service. Public GitHub publication was separately authorized and completed on 2026-07-24 without inspecting clipboard contents, changing the installed application, or rerunning application QA.</p>
 </body>
 </html>
