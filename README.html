@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=47415036725f18a6222bd70de2669bd4dd3f0a53fd6869bbc852a2a481182156 source-path-base64=UkVBRE1FLm1k -->
+<!-- tracker-free-docs-parity:v1 source-sha256=d50855551c0a97979407caf01f5c50cab018d81fe5409ce86c65817a5972bbe2 source-path-base64=UkVBRE1FLm1k -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="47415036725f18a6222bd70de2669bd4dd3f0a53fd6869bbc852a2a481182156">
+  <meta name="source-sha256" content="d50855551c0a97979407caf01f5c50cab018d81fe5409ce86c65817a5972bbe2">
   <title>Tracker Free</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -25,46 +25,145 @@
 <body>
   <p class="generated-note">Generated from <code>README.md</code>. Edit the Markdown source, then regenerate.</p>
   <h1 id="tracker-free">Tracker Free</h1>
-  <p>Tracker Free is a native macOS menu-bar utility that removes known tracking query parameters from qualifying copied links using conservative, user-auditable rules.</p>
-  <p><code>RECOMMENDATION</code>: Treat every ambiguity as a reason to leave the clipboard unchanged. Tracker Free does not claim to identify every tracker, anonymize a URL, clean every paste, or remove path, cookie, fingerprinting, referrer, redirect, or server-side tracking.</p>
-  <h2 id="version-1-scope">Version 1 scope</h2>
+  <p>**A small macOS menu-bar app that removes tracking junk from links you copy. It leaves anything it isn't sure about alone.**</p>
+  <p>Copy a link like this:</p>
+  <pre><code class="language-text">https://example.com/article?id=42&amp;utm_source=newsletter&amp;utm_medium=email&amp;utm_campaign=fall</code></pre>
+  <p>and what you paste is:</p>
+  <pre><code class="language-text">https://example.com/article?id=42</code></pre>
+  <p>Tracker Free runs quietly in the menu bar. When you copy a single, plain link, it removes known tracking parameters such as <code>utm_*</code>, <code>gclid</code>, and <code>fbclid</code>, and keeps everything else exactly as it was, down to each byte. It does nothing with prose, code, rich text, short links, signed links, or login links. It has no network access, keeps nothing on disk, and every rule it applies can be reviewed in Settings.</p>
+  <p>!<a href="docs/screenshots/menu.png">Tracker Free menu-bar menu showing automatic cleaning on, Skip Next, Pause, Clean Clipboard Now, Restore Original, and the last result: removed utm_source, utm_medium, utm_campaign</a></p>
+  <p>!<a href="docs/screenshots/rules.png">Tracker Free Settings, Rules tab, listing audited built-in rules such as dclid, fbclid, gclid (remove) and code, destination, filter (preserve), each with its confidence and source</a></p>
+  <h2 id="what-it-removes">What it removes</h2>
+  <p>Tracker Free removes a parameter only when a rule names it exactly. There are 52 built-in rules, and each one records its scope, a confidence level, and where the evidence for it came from.</p>
+  <p>**Global tracking parameters** (removed from any qualifying link):</p>
+  <table>
+  <thead>
+    <tr>
+      <th scope="col">Family</th>
+      <th scope="col">Parameters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Google Analytics campaigns</td>
+      <td><code>utm_id</code>, <code>utm_source</code>, <code>utm_medium</code>, <code>utm_campaign</code>, <code>utm_source_platform</code>, <code>utm_term</code>, <code>utm_content</code>, <code>utm_creative_format</code>, <code>utm_marketing_tactic</code></td>
+    </tr>
+    <tr>
+      <td>Google Ads</td>
+      <td><code>gclid</code>, <code>dclid</code>, <code>gbraid</code>, <code>wbraid</code>, <code>gad_source</code>, <code>gad_campaignid</code></td>
+    </tr>
+    <tr>
+      <td>Microsoft Ads, TikTok, Mailchimp, Meta</td>
+      <td><code>msclkid</code>, <code>ttclid</code>, <code>mc_cid</code>, <code>mc_eid</code>, <code>fbclid</code></td>
+    </tr>
+  </tbody>
+</table>
+  <p>A catch-all <code>utm_</code> prefix rule exists but is **off by default**, because it is experimental.</p>
+  <p>**Host-scoped share parameters.** These are removed only on the named sites and only on specific kinds of pages:</p>
+  <table>
+  <thead>
+    <tr>
+      <th scope="col">Site</th>
+      <th scope="col">Parameter</th>
+      <th scope="col">Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>X / Twitter status permalinks</td>
+      <td><code>s</code>, <code>t</code></td>
+      <td><code>https://x.com/user/status/123?s=20&amp;t=abc</code> → <code>https://x.com/user/status/123</code></td>
+    </tr>
+    <tr>
+      <td>YouTube video routes</td>
+      <td><code>si</code></td>
+      <td><code>https://youtu.be/abc?si=tok&amp;t=90</code> → <code>https://youtu.be/abc?t=90</code> (the timestamp stays)</td>
+    </tr>
+    <tr>
+      <td>Instagram content routes</td>
+      <td><code>igsh</code>, <code>igshid</code></td>
+      <td><code>https://www.instagram.com/reel/ABC/?igsh=FAKE</code> → <code>https://www.instagram.com/reel/ABC/</code></td>
+    </tr>
+  </tbody>
+</table>
+  <p>Host matching is exact. <code>https://x.com.evil/user/status/123?s=20&amp;t=abc</code> is left unchanged, and so is a YouTube search page with <code>si</code>.</p>
+  <p>**Functional parameters are always kept.** Built-in preserve rules protect names like <code>q</code>, <code>v</code>, <code>id</code>, <code>page</code>, <code>sort</code>, <code>filter</code>, <code>variant</code>, <code>list</code>, <code>index</code>, <code>start</code>, <code>end</code>, <code>origin</code>, <code>destination</code>, and Amazon affiliate <code>tag</code>. Any parameter that no rule mentions is kept as well.</p>
+  <h2 id="what-it-never-touches">What it never touches</h2>
+  <p>The guiding rule is simple: **when in doubt, leave the clipboard unchanged.**</p>
   <ul>
-  <li>Automatic monitoring of new General-pasteboard generations.</li>
-  <li>Manual cleaning through the menu and a <code>Clean Current Clipboard</code> App Intent.</li>
-  <li>Enabled, timed pause, indefinite pause, Skip Next, and memory-only Restore Original controls.</li>
-  <li>Structured built-in and user removal/preservation rules with local import and export.</li>
-  <li>Launch at Login through <code>SMAppService.mainApp</code>.</li>
-  <li>App Sandbox, Hardened Runtime, and no network client or server entitlement.</li>
-  <li>Swift 6, a macOS 13 deployment target, and local ad-hoc signing.</li>
+  <li>**Shorteners and redirect wrappers.** <code>bit.ly</code>, <code>t.co</code> and similar short links, plus Facebook and Google redirect wrappers, stay as they are. Tracker Free never follows a link, resolves a redirect, or expands a short URL.</li>
+  <li>**Signed, OAuth, and token links.** AWS S3 and CloudFront signatures, Google Cloud Storage, Azure SAS, password-reset links, OAuth callbacks and authorization requests, and token fragments are left exactly as copied, even when they also carry <code>utm_source</code>. Removing anything from a signed URL would break it.</li>
+  <li>**Local and unusual hosts.** <code>localhost</code>, private and IP-literal addresses, userinfo (<code>user@host</code>), non-HTTP schemes, scheme-relative links, and literal-Unicode URLs are skipped.</li>
+  <li>**Anything that isn't exactly one link.** Prose, Markdown, code, shell commands, text with several URLs, rich text, images, files, custom pasteboard types, multiple items, and content arriving from another device are skipped.</li>
+  <li>**Anything ambiguous.** Malformed percent-encoding, <code>;</code>-separated queries, rule conflicts, oversize input (more than 64 KiB), or a clipboard that changes during processing all mean no write happens.</li>
 </ul>
-  <p><code>RECOMMENDATION</code>: Version 1 handles exactly one unambiguous plain-text and/or URL pasteboard item. It skips rich, custom, multiple-item, remote, sensitive, malformed, literal-Unicode, local-network, redirect-wrapper, and shortener values.</p>
-  <h2 id="privacy-summary">Privacy summary</h2>
-  <p>Tracker Free does not persist clipboard contents in its own files, database, analytics, or logs.</p>
-  <p><code>VERIFIED</code>: The General pasteboard participates in Universal Clipboard, and current macOS can retain clipboard generations in system Clipboard History. Tracker Free cannot retract an original value that already synchronized or erase selected system-history entries. Cleaned and restored generations use <code>.currentHostOnly</code>.</p>
-  <p>See <a href="docs/PRIVACY.html">Privacy</a> for the complete data-lifecycle and platform limitations.</p>
-  <h2 id="project-documentation">Project documentation</h2>
+  <p>When it does clean a link, only whole <code>name=value</code> fields are removed. It never re-encodes anything. The order of the remaining fields, <code>+</code> signs, <code>%2f</code> versus <code>%2F</code>, empty fields, the fragment, and any whitespace around the link are all kept exactly.</p>
+  <h2 id="privacy">Privacy</h2>
   <ul>
-  <li><a href="AGENTS.html">Repository instructions</a></li>
-  <li><a href="docs/PROJECT.html">Project</a></li>
-  <li><a href="docs/STATUS.html">Current status</a></li>
-  <li><a href="docs/ARCHITECTURE.html">Architecture</a></li>
-  <li><a href="docs/RULES.html">Rules</a></li>
-  <li><a href="docs/DECISIONS.html">Decisions</a></li>
-  <li><a href="docs/PRIVACY.html">Privacy</a></li>
-  <li><a href="docs/TESTING.html">Testing</a></li>
-  <li><a href="docs/FAILURE_MATRIX.html">Failure matrix</a></li>
-  <li><a href="docs/SOURCES.html">Sources</a></li>
-  <li><a href="docs/SKILLS.html">Skills and workflows</a></li>
-  <li><a href="docs/LOG.html">Project log</a></li>
-  <li><a href="docs/wiki.html">Wiki index</a></li>
+  <li>**No network.** The app is sandboxed and has no network client or server entitlement. It contains no <code>URLSession</code>, WebKit, DNS, link previews, analytics, telemetry, crash reporting, or updater. Static scans in the test suite reject network APIs.</li>
+  <li>**RAM only.** The original link, the cleaned link, and the one-step undo exist only in memory. They are wiped on sleep, logout, session loss, and quit. Nothing clipboard-derived is written to disk, preferences, or logs.</li>
+  <li>**Minimal entitlements.** The entitlements are App Sandbox, Hardened Runtime, and user-selected file read/write, which is used only to import and export rules. It does not ask for Accessibility, Input Monitoring, Automation, or Screen Recording access.</li>
+  <li>**Platform limits, stated honestly.** macOS may still keep the original in Clipboard History, and the original can reach Universal Clipboard before it is cleaned. Tracker Free writes cleaned values to the current Mac only. See <a href="docs/PRIVACY.html">Privacy</a>.</li>
 </ul>
-  <h2 id="documentation-parity">Documentation parity</h2>
-  <p>Markdown is canonical. Never edit generated HTML directly.</p>
-  <pre><code class="language-sh">swift Scripts/DocsParity.swift --generate
-swift Scripts/DocsParity.swift --check
+  <p>!<a href="docs/screenshots/privacy.png">Tracker Free Settings, Privacy tab: local by design, no analytics or network access, and platform limitations</a></p>
+  <h2 id="features">Features</h2>
+  <ul>
+  <li>Automatic cleaning of newly copied links, based on pasteboard change counts.</li>
+  <li>**Clean Clipboard Now** (⇧⌘K) and a **Clean Current Clipboard** App Intent for Shortcuts.</li>
+  <li>**Skip Next**, pause for 5 or 30 minutes or until resumed, and a memory-only **Restore Original**.</li>
+  <li>An audited rule list in Settings. You can switch built-in rules on and off, and import or export your own typed rules. Rules cannot contain regex or scripts, and imports are checked against size and conflict limits.</li>
+  <li>Launch at Login through <code>SMAppService</code>.</li>
+</ul>
+  <blockquote><p>**Status.** The cleaning engine, rules, and clipboard coordinator are complete and pass the automated suites described below. The following have not yet been confirmed on an installed build and are tracked as open in <a href="docs/STATUS.html">Current status</a>: real system clipboard-permission prompts, Launch at Login, App Intent execution through Shortcuts, long-run energy use, and cross-app manual QA.</p></blockquote>
+  <h2 id="install">Install</h2>
+  <ol>
+  <li>Download <code>TrackerFree-1.0.0-macOS.zip</code> from <a href="https://github.com/vdoshi96/tracker-free/releases">Releases</a> and unzip it.</li>
+  <li>Move **Tracker Free.app** to <code>/Applications</code>.</li>
+  <li>The app is **ad-hoc signed and not notarized**, so Gatekeeper blocks it the first time you open it:</li>
+</ol>
+  <p>   - **macOS 13–14:** right-click the app, choose **Open**, then choose **Open** again.    - **macOS 15 and later:** open it once, then go to **System Settings → Privacy &amp; Security** and click **Open Anyway**.</p>
+  <ol>
+  <li>Look for the link icon in the menu bar. The first time automatic cleaning runs, macOS may ask whether Tracker Free can read the clipboard. Background cleaning needs **Always Allow**.</li>
+</ol>
+  <p>Requires macOS 13 or later. The release build is Apple silicon (arm64).</p>
+  <h2 id="build-from-source">Build from source</h2>
+  <p>Requires Xcode with the macOS SDK. The project and scheme are both <code>TrackerFree</code>.</p>
+  <pre><code class="language-sh">git clone https://github.com/vdoshi96/tracker-free.git
+cd tracker-free
+
+# Release build (ad-hoc signed)
+xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release build
+
+# Unit, property, and coordinator tests
+xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Debug \
+  -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO test -only-testing:TrackerFreeTests
+
+# Release acceptance: all 74 fixtures plus performance budgets
+xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release \
+  -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES \
+  test -only-testing:TrackerFreeTests/AcceptanceTests</code></pre>
+  <p><code>ENABLE_TESTABILITY=YES</code> is passed only to the acceptance run. The shipping Release configuration keeps it off. <a href="docs/TESTING.html">Testing</a> has the full command list.</p>
+  <h2 id="testing-highlights">Testing highlights</h2>
+  <ul>
+  <li>**74 numbered acceptance fixtures** cover global removals, duplicates, empty fields, <code>+</code> and exact <code>%HH</code> retention, case sensitivity, X/YouTube/Instagram/TikTok/Reddit/Amazon behavior, Maps and calendar links, AWS/GCS/CloudFront/Azure signatures, OAuth and reset links, redirect wrappers, shorteners, localhost and IP hosts, Punycode, whitespace envelopes, prose and code, and exact 64 KiB boundaries.</li>
+  <li>**Property checks:** <code>clean(clean(x)) == clean(x)</code>; output never grows; kept fields form an exact ordered subsequence; the scheme, host, path, and fragment stay byte-identical; rule order cannot change precedence; host fuzzing covers case, suffix attacks, ports, Punycode, and IPv4/IPv6.</li>
+  <li>**Failure injection** covers clipboard races, write and readback failures, ownership loss during rollback, stale undo, competing clipboard cleaners, sleep/wake, session loss, and relaunch. Tests use fake or uniquely named pasteboards, never your real clipboard.</li>
+  <li>**Performance** (Release, 21-sample medians on exactly 64 KiB inputs): a large query value in **9.09 ms**, many query fields in 1.99 ms, many path components in 0.61 ms, and a long parameter name against 512 rules in 5.48 ms. 10,000 synthetic clipboard events retained **48 KiB** of memory, against a 5 MiB budget.</li>
+  <li>The latest recorded Debug run had 78 of 79 top-level tests passing, with one Release-only performance test skipped by design. Release acceptance passed 4 of 4.</li>
+</ul>
+  <h2 id="built-with-ai">Built with AI</h2>
+  <p>I built Tracker Free with AI coding agents. The agents worked within a written specification and had to back every claim with evidence. The repository keeps that process visible:</p>
+  <ol>
+  <li>**Spec first.** <a href="docs/PROJECT.html">Project</a> sets the scope, the exclusions, and a definition of done. <a href="docs/ARCHITECTURE.html">Architecture</a> and <a href="docs/RULES.html">Rules</a> set the safety invariants and rule precedence before any code was written.</li>
+  <li>**Failure matrix.** <a href="docs/FAILURE_MATRIX.html">Failure matrix</a> lists 34 ways a clipboard tool can hurt you, such as a corrupted clipboard, a broken signed URL, a stale undo, or a leak into logs. Each row names the design that prevents it and the test that proves it. Every release-blocking row needs a passing deterministic test.</li>
+  <li>**Tests as the contract.** The failure matrix became the 74 fixtures, the property checks, and the race and failure-injection tests. The code was written to pass them.</li>
+  <li>**Claims are labeled.** Internal docs mark each statement as *verified* (observed), *recommendation*, or *open*. <a href="docs/STATUS.html">Current status</a> is the single source of truth, and <a href="docs/LOG.html">Project log</a> is append-only history. Rule provenance is recorded in <a href="docs/SOURCES.html">Sources</a>.</li>
+</ol>
+  <h2 id="documentation">Documentation</h2>
+  <p><a href="docs/STATUS.html">Current status</a> · <a href="docs/PROJECT.html">Project</a> · <a href="docs/ARCHITECTURE.html">Architecture</a> · <a href="docs/RULES.html">Rules</a> · <a href="docs/PRIVACY.html">Privacy</a> · <a href="docs/TESTING.html">Testing</a> · <a href="docs/FAILURE_MATRIX.html">Failure matrix</a> · <a href="docs/DECISIONS.html">Decisions</a> · <a href="docs/SOURCES.html">Sources</a> · <a href="docs/SKILLS.html">Skills and workflows</a> · <a href="docs/LOG.html">Project log</a> · <a href="docs/wiki.html">Wiki index</a> · <a href="AGENTS.html">Repository instructions</a></p>
+  <p>Markdown is canonical, and every document has a generated HTML companion. After editing Markdown, run:</p>
+  <pre><code class="language-sh">xcrun swift Scripts/DocsParity.swift --generate
+xcrun swift Scripts/DocsParity.swift --check
 xcrun swift Scripts/DocsParityIntegrationTests.swift</code></pre>
-  <p><code>VERIFIED</code>: The generator discovers only Git-visible tracked or non-ignored files through NUL-delimited Git output. It refuses symlink sources/outputs, unmanaged same-basename HTML, unsupported structured formats, and malformed ownership markers. Writes are atomic per companion, and only marker-owned orphans are removed.</p>
-  <h2 id="development-status">Development status</h2>
-  <p>See <a href="docs/STATUS.html">Current status</a>. The implementation and isolated automated suites are complete and passing on the recorded build host. Installed-Release, real General-pasteboard permission, login-item, Shortcut, energy, and cross-application workflow claims remain <code>OPEN</code> until observed from the final installed application.</p>
 </body>
 </html>

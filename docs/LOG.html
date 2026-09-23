@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=b5f205ffb31be1cae3837e2582c5a2936abd2beb6440dcef345af1fc510d555b source-path-base64=ZG9jcy9MT0cubWQ= -->
+<!-- tracker-free-docs-parity:v1 source-sha256=ebcadc584bad8fdddd96d753121a8e1fa1b8332d6051a4aa983363f3b4566094 source-path-base64=ZG9jcy9MT0cubWQ= -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="b5f205ffb31be1cae3837e2582c5a2936abd2beb6440dcef345af1fc510d555b">
+  <meta name="source-sha256" content="ebcadc584bad8fdddd96d753121a8e1fa1b8332d6051a4aa983363f3b4566094">
   <title>Project Log</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -58,5 +58,10 @@
   <p><code>VERIFIED</code>: A force-push alone could not remove the prior repository's read-only pull-request reference. The prior public repository and its single pull request were therefore deleted, then <a href="https://github.com/vdoshi96/tracker-free">vdoshi96/tracker-free</a> was recreated at the same public URL and populated only with the sanitized history.</p>
   <p><code>VERIFIED</code>: The pre-rewrite public tip and its rewritten counterpart have the same Git tree identity. Git object integrity and 14-source documentation parity pass, every commit reachable from public <code>main</code> uses private or GitHub service noreply metadata, and repository-local Git configuration plus project rules prevent future local commits from using a personal email address.</p>
   <p><code>CONSEQUENCE</code>: Every rewritten commit and descendant has a new commit ID. The removed repository's pull request and its discussion are intentionally unavailable.</p>
+  <h2 id="2026-09-22-public-readme-screenshots-and-draft-release">2026-09-22 — public README, screenshots, and draft release</h2>
+  <p><code>VERIFIED</code>: Rewrote the root README for public readers and removed evidence tags from that file only. Internal documents keep their <code>VERIFIED</code>, <code>RECOMMENDATION</code>, and <code>OPEN</code> labels. Items that <code>STATUS.md</code> marks <code>OPEN</code> are described in the README as unverified.</p>
+  <p><code>VERIFIED</code>: Added light-mode @2x screenshots under <code>docs/screenshots/</code>. The Rules and Privacy images are XCUITest window screenshots of the Release build, launched with <code>--ui-testing-open-settings</code> so it used a fake pasteboard. The menu image is the app's menu items and default post-clean state rendered by AppKit <code>NSMenu</code> in a separate harness process. Screen Recording was unavailable to the build host, and synthesized clicks did not open the status item. The throwaway capture test and harness were not committed.</p>
+  <p><code>VERIFIED</code>: Built Release with Xcode 27.0 (27A5228h) on macOS 27.2 (26B5091g). The output is arm64 only; an <code>ARCHS=&quot;arm64 x86_64&quot;</code> request still produced arm64. It is ad-hoc signed with Hardened Runtime, has only the App Sandbox and user-selected read/write entitlements, and passes strict <code>codesign</code> verification both before zipping and after extraction. <code>ditto -c -k --keepParent</code> produced <code>TrackerFree-1.0.0-macOS.zip</code> (363,955 bytes; SHA-256 <code>109b218b81c191bcf2c86e6724cdb974357f10d89b194dadcd51ab0919f3085a</code>). That zip is attached to an unpublished draft GitHub release <code>v1.0.0</code> targeting <code>main</code>.</p>
+  <p><code>OPEN</code>: The draft release is not notarized. Publishing it, and every installed-build item in <a href="STATUS.html">Current status</a>, remains a separate decision.</p>
 </body>
 </html>

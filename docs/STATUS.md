@@ -38,6 +38,7 @@
 - `VERIFIED`: XCUITest confirms Settings focus and status-menu inventory under `LSUIElement`; full installed menu behavior remains open.
 - `VERIFIED`: Final documentation parity passes for all 14 canonical Markdown sources, including root `AGENTS.md`; integration safeguards and HTML parsing also pass.
 - `VERIFIED`: The repository is public at [vdoshi96/tracker-free](https://github.com/vdoshi96/tracker-free). `origin` uses that GitHub repository, local `main` tracks `origin/main`, and repository closeout requires exact local/remote `main` parity.
+- `VERIFIED`: An unpublished draft GitHub release `v1.0.0` carries an ad-hoc-signed, non-notarized, arm64-only Release zip built with Xcode 27.0 on macOS 27.2. Publishing it requires a separate decision; see [Project log](LOG.md).
 - `VERIFIED`: Repository-local Git configuration and project rules require `116222349+vdoshi96@users.noreply.github.com` for locally created author and committer metadata. All commits reachable from public `main` use that private noreply address or GitHub's service noreply metadata; no personal Gmail address is reachable.
 
 ## Implemented safety bounds
