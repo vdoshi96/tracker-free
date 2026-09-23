@@ -139,3 +139,7 @@ xcrun swift Scripts/DocsParity.swift --generate
 xcrun swift Scripts/DocsParity.swift --check
 xcrun swift Scripts/DocsParityIntegrationTests.swift
 ```
+
+## License
+
+[MIT](LICENSE) — free for anyone to use, modify, and distribute.
