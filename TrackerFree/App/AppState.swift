@@ -716,7 +716,7 @@ final class AppState: ObservableObject {
         }
     }
 
-    private static func displayRow(_ rule: CleaningRule) -> RuleDisplayRow {
+    static func displayRow(_ rule: CleaningRule) -> RuleDisplayRow {
         let action: String
         switch rule.action {
         case .removeParameter:
@@ -740,10 +740,40 @@ final class AppState: ObservableObject {
         return RuleDisplayRow(
             id: rule.id,
             displayName: rule.name,
-            detail: "\(action) · \(scope) · \(rule.confidence.rawValue) — \(rule.explanation)",
+            detail: "\(action) · \(scope) · \(displayConfidence(rule.confidence)) — "
+                + displayExplanation(rule.explanation),
             enabled: rule.enabled,
             isHardGuard: rule.origin == .builtIn && rule.action == .hardProtectURL
         )
+    }
+
+    static func displayConfidence(_ confidence: RuleConfidence) -> String {
+        switch confidence {
+        case .verified:
+            "Verified"
+        case .inferred:
+            "Inferred"
+        case .experimental:
+            "Experimental"
+        }
+    }
+
+    /// Display-only: drops a leading evidence tag such as `VERIFIED:` or
+    /// `INFERENCE:` (the confidence is already shown) and capitalizes the
+    /// first letter. Stored and exported explanations are unchanged.
+    private static let evidenceTags = [
+        "VERIFIED:", "RECOMMENDATION:", "INFERENCE:", "OPEN:", "CONSEQUENCE:",
+    ]
+
+    static func displayExplanation(_ explanation: String) -> String {
+        var text = Substring(explanation)
+        if let tag = evidenceTags.first(where: { text.hasPrefix($0) }) {
+            text = text.dropFirst(tag.count).drop { $0 == " " }
+        }
+        guard let first = text.first else {
+            return String(explanation)
+        }
+        return first.uppercased() + text.dropFirst()
     }
 
     private static func formattedDuration(_ duration: TimeInterval) -> String {
