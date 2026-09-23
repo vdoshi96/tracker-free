@@ -75,3 +75,13 @@
 `VERIFIED`: Built Release with Xcode 27.0 (27A5228h) on macOS 27.2 (26B5091g). The output is arm64 only; an `ARCHS="arm64 x86_64"` request still produced arm64. It is ad-hoc signed with Hardened Runtime, has only the App Sandbox and user-selected read/write entitlements, and passes strict `codesign` verification both before zipping and after extraction. `ditto -c -k --keepParent` produced `TrackerFree-1.0.0-macOS.zip` (363,955 bytes; SHA-256 `109b218b81c191bcf2c86e6724cdb974357f10d89b194dadcd51ab0919f3085a`). That zip is attached to an unpublished draft GitHub release `v1.0.0` targeting `main`.
 
 `OPEN`: The draft release is not notarized. Publishing it, and every installed-build item in [Current status](STATUS.md), remains a separate decision.
+
+## 2026-09-23 — display-only rule explanation formatting
+
+`VERIFIED`: The Settings rule list no longer shows leading evidence tags (`VERIFIED:`, `RECOMMENDATION:`, `INFERENCE:`, `OPEN:`, `CONSEQUENCE:`) in each rule's subtitle, and it capitalizes the confidence and the first letter of the explanation. Only exact, known tags are removed. The bundled JSON, persisted user rules, and the export format are unchanged. New `RuleDisplayFormattingTests` cover tag removal, untagged and edge-case text, an unchanged stored explanation, and the absence of tags from every bundled rule's subtitle.
+
+`VERIFIED`: The Debug `-only-testing:TrackerFreeTests` run ran 83 top-level tests (79 XCTest and 4 Swift Testing): 82 passed, 1 Release-only performance case was skipped, and none failed.
+
+`VERIFIED`: The refreshed `docs/screenshots/rules.png` and the new `general.png` are XCUITest window captures of the Release build, taken in the isolated `--ui-testing-open-settings` mode with a fake pasteboard and in-memory state. The General capture turned on automatic cleaning in that isolated state only. Its Launch at Login row reports the build host's live `SMAppService` status and does not close the Launch at Login gate in [Current status](STATUS.md).
+
+`OPEN`: The build host locked during capture. A Rules view scrolled to the host-scoped rules could not be captured, and the existing `testSettingsSceneCanOpenForDocklessApp` could not be rerun afterwards, so it has no fresh result from this session.

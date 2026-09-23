@@ -939,3 +939,64 @@ final class RuleEngineTests: XCTestCase {
         )
     }
 }
+
+@MainActor
+final class RuleDisplayFormattingTests: XCTestCase {
+    func testDisplayExplanationDropsLeadingEvidenceTagAndCapitalizes() {
+        XCTAssertEqual(
+            AppState.displayExplanation(
+                "VERIFIED: Google documents the Google Click Identifier."
+            ),
+            "Google documents the Google Click Identifier."
+        )
+        XCTAssertEqual(
+            AppState.displayExplanation(
+                "RECOMMENDATION: preserve potentially functional or sensitive names."
+            ),
+            "Preserve potentially functional or sensitive names."
+        )
+        XCTAssertEqual(
+            AppState.displayExplanation(
+                "INFERENCE: remove s only on anchored X or Twitter status permalinks."
+            ),
+            "Remove s only on anchored X or Twitter status permalinks."
+        )
+    }
+
+    func testDisplayExplanationLeavesUntaggedTextReadable() {
+        XCTAssertEqual(AppState.displayExplanation("user note"), "User note")
+        XCTAssertEqual(AppState.displayExplanation("URL: kept as is"), "URL: kept as is")
+        XCTAssertEqual(AppState.displayExplanation("A: short"), "A: short")
+        XCTAssertEqual(AppState.displayExplanation("VERIFIED:"), "VERIFIED:")
+        XCTAssertEqual(AppState.displayExplanation("NOTE: keep"), "NOTE: keep")
+        XCTAssertEqual(AppState.displayExplanation(""), "")
+    }
+
+    func testDisplayRowFormatsDetailWithoutChangingStoredExplanation() {
+        let rule = TestRuleFactory.rule(
+            id: "builtin.remove.gclid",
+            action: .removeParameter,
+            name: "gclid",
+            explanation: "VERIFIED: Google documents the Google Click Identifier."
+        )
+        let row = AppState.displayRow(rule)
+        XCTAssertEqual(
+            row.detail,
+            "Remove · Global · Verified — Google documents the Google Click Identifier."
+        )
+        XCTAssertEqual(
+            rule.explanation,
+            "VERIFIED: Google documents the Google Click Identifier."
+        )
+    }
+
+    func testEveryBundledRuleDetailOmitsEvidenceTags() throws {
+        let snapshot = try TestRuleFactory.builtInSnapshot()
+        for rule in snapshot.rules {
+            let detail = AppState.displayRow(rule).detail
+            for tag in ["VERIFIED:", "RECOMMENDATION:", "INFERENCE:"] {
+                XCTAssertFalse(detail.contains(tag), "\(rule.id) detail kept \(tag)")
+            }
+        }
+    }
+}

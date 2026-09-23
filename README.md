@@ -18,7 +18,7 @@ Tracker Free runs quietly in the menu bar. When you copy a single, plain link, i
 
 ![Tracker Free menu-bar menu showing automatic cleaning on, Skip Next, Pause, Clean Clipboard Now, Restore Original, and the last result: removed utm_source, utm_medium, utm_campaign](docs/screenshots/menu.png)
 
-![Tracker Free Settings, Rules tab, listing audited built-in rules such as dclid, fbclid, gclid (remove) and code, destination, filter (preserve), each with its confidence and source](docs/screenshots/rules.png)
+![Tracker Free Settings, Rules tab, listing audited built-in rules such as dclid, fbclid, gclid (remove) and code, destination, filter (preserve), each with its action, scope, confidence, and a plain-English explanation](docs/screenshots/rules.png)
 
 ## What it removes
 
@@ -117,7 +117,7 @@ xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Rel
 - **Property checks:** `clean(clean(x)) == clean(x)`; output never grows; kept fields form an exact ordered subsequence; the scheme, host, path, and fragment stay byte-identical; rule order cannot change precedence; host fuzzing covers case, suffix attacks, ports, Punycode, and IPv4/IPv6.
 - **Failure injection** covers clipboard races, write and readback failures, ownership loss during rollback, stale undo, competing clipboard cleaners, sleep/wake, session loss, and relaunch. Tests use fake or uniquely named pasteboards, never your real clipboard.
 - **Performance** (Release, 21-sample medians on exactly 64 KiB inputs): a large query value in **9.09 ms**, many query fields in 1.99 ms, many path components in 0.61 ms, and a long parameter name against 512 rules in 5.48 ms. 10,000 synthetic clipboard events retained **48 KiB** of memory, against a 5 MiB budget.
-- The latest recorded Debug run had 78 of 79 top-level tests passing, with one Release-only performance test skipped by design. Release acceptance passed 4 of 4.
+- The latest Debug run of `TrackerFreeTests` had 82 of 83 top-level tests passing (79 XCTest and 4 Swift Testing), with one Release-only performance test skipped by design. The last recorded Release acceptance run passed 4 of 4.
 
 ## Built with AI
 
