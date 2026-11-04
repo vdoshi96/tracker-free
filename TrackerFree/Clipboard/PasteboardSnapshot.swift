@@ -78,14 +78,24 @@ enum PasteboardSnapshotReader {
         }
 
         var allowedTypes = PasteboardTypeIdentifier.allowedContent
-        if markerPolicy == .require {
+        switch markerPolicy {
+        case .require:
             allowedTypes.insert(PasteboardTypeIdentifier.trackerFreeMarker)
+        case .forbid:
+            // Browsers add HTML when a page copies a URL as text (for example X's
+            // web "Copy link"). It is admitted only as a plain-text companion and
+            // only when proven redundant below; cleaned writes never carry it.
+            allowedTypes.insert(PasteboardTypeIdentifier.html)
         }
         guard typeSet.isSubset(of: allowedTypes) else {
             return .failure(.unsupportedType)
         }
         guard !typeSet.isDisjoint(with: PasteboardTypeIdentifier.allowedContent) else {
             return .failure(.missingAllowedRepresentation)
+        }
+        if typeSet.contains(PasteboardTypeIdentifier.html),
+           !typeSet.contains(PasteboardTypeIdentifier.plainText) {
+            return .failure(.unsupportedType)
         }
 
         if markerPolicy == .require {
@@ -106,10 +116,12 @@ enum PasteboardSnapshotReader {
         var combinedByteCount = 0
         var plainText: String?
         var url: String?
+        var html: String?
 
         for typeIdentifier in [
             PasteboardTypeIdentifier.plainText,
             PasteboardTypeIdentifier.url,
+            PasteboardTypeIdentifier.html,
         ] where typeSet.contains(typeIdentifier) {
             let clock = ContinuousClock()
             let readStart = clock.now
@@ -137,14 +149,17 @@ enum PasteboardSnapshotReader {
                 return .failure(.invalidUTF8)
             }
 
-            if typeIdentifier == PasteboardTypeIdentifier.plainText {
+            switch typeIdentifier {
+            case PasteboardTypeIdentifier.plainText:
                 plainText = value
-            } else {
+            case PasteboardTypeIdentifier.url:
                 url = value
+            default:
+                html = value
             }
         }
 
-        let content = PasteboardContent(plainText: plainText, url: url)
+        let content = PasteboardContent(plainText: plainText, url: url, html: html)
         guard !content.isEmpty else {
             return .failure(.missingAllowedRepresentation)
         }
@@ -154,6 +169,15 @@ enum PasteboardSnapshotReader {
                   plainTextCore == url
             else {
                 return .failure(.conflictingRepresentations)
+            }
+        }
+
+        if let html {
+            guard let plainText,
+                  let plainTextCore = PlainTextEnvelope.core(from: plainText),
+                  RedundantURLHTML.textContent(of: html) == plainTextCore
+            else {
+                return .failure(.unsupportedType)
             }
         }
 
@@ -218,5 +242,208 @@ enum PlainTextEnvelope {
             return nil
         }
         return String(decoding: bytes[coreStart..<coreEnd], as: UTF8.self)
+    }
+}
+
+/// Recognizes the HTML a browser adds when a web page copies a URL as text.
+///
+/// Returns the decoded visible text only when the markup consists solely of
+/// structural wrappers (`html`, `head`, `meta`, `body`, `span`), comments, and a
+/// doctype. Any other element, a bare `<` or `&`, an unknown entity, or
+/// unterminated markup returns nil, so genuinely rich content stays a hard skip.
+/// Attribute values are skipped, never interpreted: the HTML is only ever kept
+/// for byte-exact restoration, so its styling carries no meaning here.
+enum RedundantURLHTML {
+    private static let permittedElements: Set<String> = [
+        "html", "head", "meta", "body", "span",
+    ]
+    private static let maximumEntityLength = 12
+
+    static func textContent(of html: String) -> String? {
+        let bytes = Array(html.utf8)
+        var text: [UInt8] = []
+        text.reserveCapacity(bytes.count)
+        var index = 0
+        while index < bytes.count {
+            switch bytes[index] {
+            case 0x3C: // <
+                guard let next = endOfMarkup(bytes, from: index) else {
+                    return nil
+                }
+                index = next
+            case 0x26: // &
+                guard let (decoded, next) = decodeEntity(bytes, from: index) else {
+                    return nil
+                }
+                text.append(contentsOf: decoded)
+                index = next
+            default:
+                text.append(bytes[index])
+                index += 1
+            }
+        }
+
+        var start = text.startIndex
+        var end = text.endIndex
+        while start < end, isHTMLWhitespace(text[start]) {
+            start += 1
+        }
+        while end > start, isHTMLWhitespace(text[end - 1]) {
+            end -= 1
+        }
+        return String(decoding: text[start..<end], as: UTF8.self)
+    }
+
+    /// Returns the index just past a permitted tag, comment, or doctype.
+    private static func endOfMarkup(_ bytes: [UInt8], from start: Int) -> Int? {
+        if hasPrefix(bytes, at: start, "<!--") {
+            var index = start + 4
+            while index + 2 < bytes.count {
+                if bytes[index] == 0x2D, bytes[index + 1] == 0x2D, bytes[index + 2] == 0x3E {
+                    return index + 3
+                }
+                index += 1
+            }
+            return nil
+        }
+        if hasPrefix(bytes, at: start, "<!doctype", caseInsensitive: true) {
+            guard let close = bytes[start...].firstIndex(of: 0x3E) else {
+                return nil
+            }
+            return close + 1
+        }
+
+        var index = start + 1
+        if index < bytes.count, bytes[index] == 0x2F { // /
+            index += 1
+        }
+        let nameStart = index
+        while index < bytes.count, isASCIIAlphaNumeric(bytes[index]) {
+            index += 1
+        }
+        guard index > nameStart, isASCIILetter(bytes[nameStart]) else {
+            return nil
+        }
+        let name = String(decoding: bytes[nameStart..<index].map(asciiLowercased), as: UTF8.self)
+        guard permittedElements.contains(name), index < bytes.count else {
+            return nil
+        }
+        guard isHTMLWhitespace(bytes[index]) || bytes[index] == 0x2F || bytes[index] == 0x3E else {
+            return nil
+        }
+
+        while index < bytes.count {
+            switch bytes[index] {
+            case 0x3E: // >
+                return index + 1
+            case 0x22, 0x27: // " or '
+                let quote = bytes[index]
+                index += 1
+                while index < bytes.count, bytes[index] != quote {
+                    index += 1
+                }
+                guard index < bytes.count else {
+                    return nil
+                }
+                index += 1
+            case 0x3C: // < inside a tag is malformed
+                return nil
+            default:
+                index += 1
+            }
+        }
+        return nil
+    }
+
+    private static func decodeEntity(
+        _ bytes: [UInt8],
+        from start: Int
+    ) -> (decoded: [UInt8], next: Int)? {
+        let limit = min(bytes.count, start + maximumEntityLength)
+        guard let semicolon = bytes[(start + 1)..<limit].firstIndex(of: 0x3B) else {
+            return nil
+        }
+        let name = Array(bytes[(start + 1)..<semicolon])
+        let next = semicolon + 1
+
+        switch String(decoding: name, as: UTF8.self) {
+        case "amp": return (Array("&".utf8), next)
+        case "lt": return (Array("<".utf8), next)
+        case "gt": return (Array(">".utf8), next)
+        case "quot": return (Array("\"".utf8), next)
+        case "apos": return (Array("'".utf8), next)
+        default: break
+        }
+
+        guard name.first == 0x23 else { // #
+            return nil
+        }
+        var digits = name.dropFirst()
+        var radix: UInt32 = 10
+        if let marker = digits.first, marker == 0x78 || marker == 0x58 { // x or X
+            radix = 16
+            digits = digits.dropFirst()
+        }
+        guard !digits.isEmpty, digits.count <= 8 else {
+            return nil
+        }
+        var value: UInt32 = 0
+        for byte in digits {
+            guard let digit = hexValue(byte), digit < radix else {
+                return nil
+            }
+            value = value * radix + digit
+        }
+        guard value != 0, let scalar = Unicode.Scalar(value) else {
+            return nil
+        }
+        return (Array(String(Character(scalar)).utf8), next)
+    }
+
+    private static func hasPrefix(
+        _ bytes: [UInt8],
+        at start: Int,
+        _ prefix: String,
+        caseInsensitive: Bool = false
+    ) -> Bool {
+        let expected = Array(prefix.utf8)
+        guard start + expected.count <= bytes.count else {
+            return false
+        }
+        for offset in expected.indices {
+            let actual = bytes[start + offset]
+            let matches = caseInsensitive
+                ? asciiLowercased(actual) == expected[offset]
+                : actual == expected[offset]
+            guard matches else {
+                return false
+            }
+        }
+        return true
+    }
+
+    private static func hexValue(_ byte: UInt8) -> UInt32? {
+        switch byte {
+        case 0x30...0x39: UInt32(byte - 0x30)
+        case 0x41...0x46: UInt32(byte - 0x41 + 10)
+        case 0x61...0x66: UInt32(byte - 0x61 + 10)
+        default: nil
+        }
+    }
+
+    private static func isHTMLWhitespace(_ byte: UInt8) -> Bool {
+        byte == 0x20 || byte == 0x09 || byte == 0x0A || byte == 0x0C || byte == 0x0D
+    }
+
+    private static func isASCIILetter(_ byte: UInt8) -> Bool {
+        (byte >= 0x41 && byte <= 0x5A) || (byte >= 0x61 && byte <= 0x7A)
+    }
+
+    private static func isASCIIAlphaNumeric(_ byte: UInt8) -> Bool {
+        isASCIILetter(byte) || (byte >= 0x30 && byte <= 0x39)
+    }
+
+    private static func asciiLowercased(_ byte: UInt8) -> UInt8 {
+        (byte >= 0x41 && byte <= 0x5A) ? byte + 0x20 : byte
     }
 }

@@ -11,6 +11,8 @@ public struct PasteboardGeneration: RawRepresentable, Hashable, Sendable {
 public enum PasteboardTypeIdentifier {
     public static let plainText = "public.utf8-plain-text"
     public static let url = "public.url"
+    /// Accepted only as a redundant companion; see `RedundantURLHTML`.
+    public static let html = "public.html"
     public static let trackerFreeMarker = "com.vishal.TrackerFree.cleaned-v1"
 
     public static let concealed = "org.nspasteboard.ConcealedType"
@@ -50,18 +52,26 @@ public enum ClipboardPermissionState: Equatable, Sendable {
 public struct PasteboardContent: Equatable, Sendable {
     public let plainText: String?
     public let url: String?
+    /// A redundant HTML companion: markup whose only text is the plain-text URL.
+    ///
+    /// It is retained solely so rollback and Restore Original reproduce the
+    /// original item. A cleaned write never carries it, because it would paste
+    /// the tracked URL back into rich-text destinations.
+    public let html: String?
 
-    public init(plainText: String? = nil, url: String? = nil) {
+    public init(plainText: String? = nil, url: String? = nil, html: String? = nil) {
         self.plainText = plainText
         self.url = url
+        self.html = html
     }
 
+    /// HTML alone is never cleanable content; it only accompanies plain text.
     public var isEmpty: Bool {
         plainText == nil && url == nil
     }
 
     public var combinedUTF8ByteCount: Int {
-        (plainText?.utf8.count ?? 0) + (url?.utf8.count ?? 0)
+        (plainText?.utf8.count ?? 0) + (url?.utf8.count ?? 0) + (html?.utf8.count ?? 0)
     }
 }
 

@@ -174,6 +174,18 @@ final class URLCleanerTests: XCTestCase {
                 nil
             ),
             (
+                "https://x.com/person/status/123?a=xa3_synthetic&s=20",
+                "https://x.com/person/status/123"
+            ),
+            (
+                "https://x.com/home?a=xa3_synthetic",
+                nil
+            ),
+            (
+                "https://example.com/p?a=xa3_synthetic",
+                nil
+            ),
+            (
                 "https://www.youtube.com/watch"
                     + "?v=dQw4w9WgXcQ&si=share&t=43",
                 "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=43"

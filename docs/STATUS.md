@@ -4,11 +4,11 @@
 
 `VERIFIED`: Tracker Free's production implementation and isolated automated suites are complete and passing on macOS 26.6 build 25G70 with Xcode 26.6 build 17F113.
 
-`VERIFIED`: The settled Debug run reported 79 top-level tests: 78 passed and one Release-only performance case was intentionally skipped. Expanded device/configuration reporting recorded 150 passes and zero failures across XCTest and Swift Testing engine, rule, coordinator, named-pasteboard, lifecycle, race, persistence, and static-architecture cases. The isolated XCUITest verifies the menu-extra status inventory and Settings focus for the dockless app.
+`VERIFIED`: The current Debug run (2026-11-04) reported 87 top-level tests (83 XCTest and 4 Swift Testing): 86 passed, one Release-only performance case was intentionally skipped, and none failed. An earlier settled run's expanded device/configuration reporting recorded 150 passes and zero failures across XCTest and Swift Testing engine, rule, coordinator, named-pasteboard, lifecycle, race, persistence, and static-architecture cases. The isolated XCUITest verifies the menu-extra status inventory and Settings focus for the dockless app.
 
-`VERIFIED`: Release acceptance passed 4 of 4 tests with all 74 numbered fixtures, exact 64 KiB structural cases, 8 MiB early rejection, a maximum 512-rule shape, and 10,000 synthetic coordinator events. The observed worst 64 KiB median was 9.089834 ms, the long-name/512-rule median was 5.48 ms, and retained resident growth was 49,152 bytes.
+`VERIFIED`: Release acceptance passed 4 of 4 tests with all 74 numbered fixtures, exact 64 KiB structural cases, 8 MiB early rejection, a maximum 512-rule shape, and 10,000 synthetic coordinator events. The observed worst 64 KiB median was 9.089834 ms, the long-name/512-rule median was 5.48 ms, and retained resident growth was 49,152 bytes. Release acceptance re-passed 4 of 4 on 2026-11-04 with a 4.46 ms long-name/512-rule median.
 
-`VERIFIED`: The settled Release is installed at `/Applications/Tracker Free.app`. Its executable is byte-identical to the verified build (SHA-256 `c507d4de0e53fd0fdeedbee4517465e675c0de68652fd9b68442a76a310b27f1`), passes strict code-signature verification, and launches successfully.
+`VERIFIED`: The Release with redundant-HTML support and rule-set revision `2026110301` was installed at `/Applications/Tracker Free.app` on 2026-11-04. Its executable is byte-identical to the verified build (SHA-256 `874236fcaafefc46170468617832df2bbcd32349112ca06800d0bf5b6e54259c`), it is ad-hoc signed with Hardened Runtime and only the App Sandbox and user-selected read/write entitlements, passes strict code-signature verification, and launches successfully. It replaced the build with SHA-256 `c507d4de0e53fd0fdeedbee4517465e675c0de68652fd9b68442a76a310b27f1`.
 
 `OPEN`: Real General-pasteboard permission behavior, App Intent execution through Shortcuts, Launch at Login, ten-minute runtime network/energy observation, and the cross-application manual matrix still require current evidence before release.
 
@@ -23,8 +23,8 @@
 - `VERIFIED`: Decoded classification paths fail closed as ambiguous when they contain dot segments, a residual percent sign, C0/DEL bytes, or decoded slash/backslash separators.
 - `VERIFIED`: Ordinary automated tests use fake or uniquely named pasteboards; a static allowlist isolates `NSPasteboard.general` to the production adapter.
 - `VERIFIED`: The installed Release has `LSUIElement=true`, bundle identifier `com.vishal.TrackerFree`, macOS 13.0 minimum, and launches as the expected menu-bar process. A direct installed visual Dock/menu inspection remains open because the desktop-control service timed out for the windowless app.
-- `VERIFIED`: Automatic and manual cleaning are demonstrated on fake and uniquely named synthetic pasteboards; installed General-pasteboard demonstration remains open.
-- `VERIFIED`: Rich, multiple, remote, sensitive, protected, malformed, and ambiguous synthetic values remain unchanged.
+- `VERIFIED`: Automatic and manual cleaning are demonstrated on fake and uniquely named synthetic pasteboards. On 2026-11-04 the installed app automatically cleaned a General-pasteboard item with Firefox's X Copy link inventory (`public.html` plus `public.utf8-plain-text`) to plain text plus the Tracker Free marker within one polling interval. Broader installed General-pasteboard QA remains open.
+- `VERIFIED`: Non-redundant rich, multiple, remote, sensitive, protected, malformed, and ambiguous synthetic values remain unchanged. A redundant HTML companion is cleaned away and restored byte-for-byte by rollback and Restore Original.
 - `VERIFIED`: Skip Next, timed and indefinite pause, undo, stale undo, sleep/wake, session loss, termination, and relaunch semantics pass deterministic tests. Conflict pause survives sleep/wake and session round-trips and permits only explicit resume.
 - `OPEN`: Permission-required states are truthful on macOS 26.6.
 - `OPEN`: App Intent works through a user-created Shortcut without Accessibility permission.
@@ -32,6 +32,7 @@
 - `VERIFIED`: The installed app's ad-hoc signature has Hardened Runtime enabled. Its only entitlements are App Sandbox and user-selected file read/write; network client/server and `get-task-allow` are absent.
 - `VERIFIED`: Static scans find no network APIs, and a bounded post-launch `lsof` snapshot found no open network sockets for the installed process. A longer installed observation remains open.
 - `VERIFIED`: Static architecture checks reject network/global-input APIs and confine logging to privacy-safe metadata; installed runtime log/persistence sentinel observation remains open.
+- `OPEN`: `Scripts/VerifyStaticSafety.sh` reports success when `rg` is not installed, because a command-not-found `rg` probe is treated as a clean scan. On 2026-11-04 its two `rg` scans were rerun with `grep` and found no violations.
 - `VERIFIED`: Release acceptance meets the less-than-5-MiB retained-growth and less-than-10-ms transform targets. Ten-minute installed idle CPU and energy observation remains open.
 - `OPEN`: Safari, Firefox, Chrome, X, Mail, Messages, Notes, Terminal, and an existing clipboard manager are checked where available.
 - `OPEN`: Universal Clipboard and Clipboard History limitations are checked using synthetic content only.
@@ -69,8 +70,8 @@ Keep conservative behavior while these remain unresolved:
 3. `OPEN`: Whether App Intent clipboard access receives user-originated treatment.
 4. `OPEN`: Whether `SMAppService.mainApp` remains reliable across installed ad-hoc rebuilds.
 5. `OPEN`: Whether Personal Team signing materially improves local identity stability.
-6. `OPEN`: Exact Safari, Firefox, and Chrome representation inventories for address-bar, Copy Link, and rich-link copies.
-7. `OPEN`: Whether any proven inert browser metadata type should enter the allowlist.
+6. `OPEN`: Exact Safari and Chrome representation inventories for address-bar, Copy Link, and rich-link copies. `VERIFIED` for Firefox on 2026-11-04: X's web Copy link yields one item holding `public.html` (Firefox's document wrapper around a span containing the URL) and `public.utf8-plain-text`.
+7. `VERIFIED`: A redundant `public.html` companion is admitted under the narrow rule in [Architecture](ARCHITECTURE.md). `OPEN`: Whether any other proven inert browser type, such as Safari's web archive or RTF on page-initiated copies, should be admitted.
 8. `OPEN`: Measured 250 ms versus 500 ms energy behavior.
 9. `OPEN`: Runtime behavior on macOS 13, 14, 15.3, and 15.4/15.5.
 10. `OPEN`: Whether a future opt-in should allow rewritten values to participate in Universal Clipboard.
@@ -78,3 +79,5 @@ Keep conservative behavior while these remain unresolved:
 ## Non-actions
 
 `VERIFIED`: The original application QA did not inspect or capture the current clipboard, change privacy settings, or contact a network service. Public GitHub publication was separately authorized and completed on 2026-07-24 without inspecting clipboard contents, changing the installed application, or rerunning application QA.
+
+`VERIFIED`: On 2026-11-04, at the user's request to diagnose a missed X link, the current General clipboard's type inventory was inspected and an identical item was re-copied to verify the installed fix. No clipboard value is recorded in repository documentation.

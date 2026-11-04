@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=4d34e8e86070ed61bbd90fc3b19bd8305046a55687a456c67ce56946c07364a8 source-path-base64=ZG9jcy9SVUxFUy5tZA== -->
+<!-- tracker-free-docs-parity:v1 source-sha256=50143bdf0aa332e7977eb52744f3984c80b4aac85a9494435693b060ea76ce4e source-path-base64=ZG9jcy9SVUxFUy5tZA== -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="4d34e8e86070ed61bbd90fc3b19bd8305046a55687a456c67ce56946c07364a8">
+  <meta name="source-sha256" content="50143bdf0aa332e7977eb52744f3984c80b4aac85a9494435693b060ea76ce4e">
   <title>Rules</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -92,8 +92,9 @@
   <p>Unknown-preserve remains the final safety net. A verified host/path-specific removal can outrank a less-specific built-in preserve.</p>
   <h2 id="scoped-rules">Scoped rules</h2>
   <h3 id="x-and-twitter">X and Twitter</h3>
-  <p><code>INFERENCE</code>: Remove <code>s</code> and <code>t</code> only on exact <code>x.com</code>, <code>www.x.com</code>, <code>twitter.com</code>, <code>www.twitter.com</code>, and <code>mobile.twitter.com</code> hosts, and only on anchored <code>/{valid-handle}/status/{digits}</code> or <code>/i/web/status/{digits}</code> forms with permitted status suffixes.</p>
-  <p>Hard-exclude redirect, authentication, account, settings, reset, and email paths. Never remove <code>t</code> globally.</p>
+  <p><code>INFERENCE</code>: Remove <code>s</code>, <code>t</code>, and <code>a</code> only on exact <code>x.com</code>, <code>www.x.com</code>, <code>twitter.com</code>, <code>www.twitter.com</code>, and <code>mobile.twitter.com</code> hosts, and only on anchored <code>/{valid-handle}/status/{digits}</code> or <code>/i/web/status/{digits}</code> forms with permitted status suffixes.</p>
+  <p>Hard-exclude redirect, authentication, account, settings, reset, and email paths. Never remove <code>t</code> or <code>a</code> globally.</p>
+  <p><code>INFERENCE</code>: <code>a</code> was added in rule-set revision <code>2026110301</code> after X web Copy link URLs were observed carrying an opaque <code>a=</code> value beside <code>s=20</code>. X has not documented it; a status permalink resolves without it. Like <code>s</code> and <code>t</code>, it is removed only on anchored status permalinks.</p>
   <h3 id="youtube">YouTube</h3>
   <p><code>INFERENCE</code>: Remove <code>si</code> only on exact <code>youtu.be</code> video paths and exact YouTube hosts with valid <code>/watch?v=...</code> or <code>/shorts/{id}</code> content routes.</p>
   <p>Preserve <code>v</code>, <code>list</code>, <code>index</code>, <code>t</code>, <code>start</code>, <code>end</code>, <code>playlist</code>, <code>listType</code>, <code>pp</code>, <code>feature</code>, captions, and player-control fields.</p>

@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=6d2db9543e6bab9a75b57e728d5b211f59252fdea372934336164e242a10cba1 source-path-base64=ZG9jcy9GQUlMVVJFX01BVFJJWC5tZA== -->
+<!-- tracker-free-docs-parity:v1 source-sha256=0932ab54b4310ab93e29c77d92e301006b32978eb3b77d2751088f01b74b7a4f source-path-base64=ZG9jcy9GQUlMVVJFX01BVFJJWC5tZA== -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="6d2db9543e6bab9a75b57e728d5b211f59252fdea372934336164e242a10cba1">
+  <meta name="source-sha256" content="0932ab54b4310ab93e29c77d92e301006b32978eb3b77d2751088f01b74b7a4f">
   <title>Failure-Mode Matrix</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -47,8 +47,15 @@
     <tr>
       <td>Rich text, image, or file replaced by text</td>
       <td>Critical</td>
-      <td>Strict one-item/two-type allowlist</td>
-      <td>HTML, RTF/RTFD, image, file, custom fixtures</td>
+      <td>Strict one-item/two-type allowlist; HTML admitted only as a proven-redundant plain-text companion and restored byte-for-byte on rollback/undo</td>
+      <td>HTML, RTF/RTFD, image, file, custom fixtures; redundant-HTML accept/reject and rollback/restore tests</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Tracked URL survives in a rich companion</td>
+      <td>High</td>
+      <td>Cleaned writes never carry HTML; adapter and coordinator both reject HTML on a cleaned write</td>
+      <td>Post-clean type inventory and HTML-bearing transform rejection tests</td>
       <td>Yes</td>
     </tr>
     <tr>

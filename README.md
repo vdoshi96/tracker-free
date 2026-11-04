@@ -38,7 +38,7 @@ A catch-all `utm_` prefix rule exists but is **off by default**, because it is e
 
 | Site | Parameter | Example |
 |---|---|---|
-| X / Twitter status permalinks | `s`, `t` | `https://x.com/user/status/123?s=20&t=abc` → `https://x.com/user/status/123` |
+| X / Twitter status permalinks | `s`, `t`, `a` | `https://x.com/user/status/123?a=xa3_abc&s=20` → `https://x.com/user/status/123` |
 | YouTube video routes | `si` | `https://youtu.be/abc?si=tok&t=90` → `https://youtu.be/abc?t=90` (the timestamp stays) |
 | Instagram content routes | `igsh`, `igshid` | `https://www.instagram.com/reel/ABC/?igsh=FAKE` → `https://www.instagram.com/reel/ABC/` |
 
@@ -54,6 +54,8 @@ The guiding rule is simple: **when in doubt, leave the clipboard unchanged.**
 - **Signed, OAuth, and token links.** AWS S3 and CloudFront signatures, Google Cloud Storage, Azure SAS, password-reset links, OAuth callbacks and authorization requests, and token fragments are left exactly as copied, even when they also carry `utm_source`. Removing anything from a signed URL would break it.
 - **Local and unusual hosts.** `localhost`, private and IP-literal addresses, userinfo (`user@host`), non-HTTP schemes, scheme-relative links, and literal-Unicode URLs are skipped.
 - **Anything that isn't exactly one link.** Prose, Markdown, code, shell commands, text with several URLs, rich text, images, files, custom pasteboard types, multiple items, and content arriving from another device are skipped.
+
+  One narrow exception: when a web page copies a link as text (X's "Copy link" does this), the browser also adds a tiny HTML copy holding nothing but the same URL. Tracker Free cleans that link, writes back plain text only so a rich-text paste can't bring the tracker back, and restores the original HTML too if you choose Restore Original. HTML containing anything else, such as a hyperlink, formatting, an image, or extra words, is still skipped.
 - **Anything ambiguous.** Malformed percent-encoding, `;`-separated queries, rule conflicts, oversize input (more than 64 KiB), or a clipboard that changes during processing all mean no write happens.
 
 When it does clean a link, only whole `name=value` fields are removed. It never re-encodes anything. The order of the remaining fields, `+` signs, `%2f` versus `%2F`, empty fields, the fragment, and any whitespace around the link are all kept exactly.
