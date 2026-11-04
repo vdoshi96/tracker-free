@@ -100,3 +100,17 @@
 
 `OPEN`: Safari page-initiated copies also add web archive and RTF types and therefore remain hard skips. Chrome's live inventory for X Copy link was not observed in this session; its documented `<meta charset>` plus span shape is covered by an isolated test.
 
+## 2026-11-04 — Chrome and Safari Copy link companions; static safety scan
+
+`VERIFIED`: The earlier fix admitted only HTML, so the same X Copy link from Chrome or Safari would still be skipped. Copying a synthetic URL from a page that mirrors X's span copy showed why. Chrome 156, driven through DevTools with a trusted click and a temporary profile, added `org.chromium.source-url` and a 24-byte `org.chromium.internal.source-rfh-token` beside its HTML. The system WebKit that Safari 27.3 uses, run in a WebKit view, added a web archive, RTF, UTF-16 text, and WebKit custom data. Decoding each one showed it was redundant: every rich form renders only the URL, the alternate text matches it, and the custom data holds an origin with empty data and type lists.
+
+`VERIFIED`: Generalized `PasteboardContent.html` to `companions` (type identifier to original bytes) under `PasteboardCompanionPolicy`. Each type has its own check, documented in [Architecture](ARCHITECTURE.md). Companions are read with the same generation, duration, and 64 KiB combined bounds as primary text. They are kept for byte-exact rollback and Restore Original and are never carried on a cleaned write.
+
+`VERIFIED`: `Scripts/VerifyStaticSafety.sh` now scans with the base-system `grep` and fails closed when `grep` reports an error. The new `Scripts/VerifyStaticSafetyTests.sh` failed against the old script on a PATH without `rg`: three planted violations passed. It passes against the new script, which also rejects an unreadable source subdirectory.
+
+`VERIFIED`: The new tests failed before the change (Chrome and WebKit inventories skipped) and pass after it. The Debug `-only-testing:TrackerFreeTests` run reported 88 top-level tests (84 XCTest and 4 Swift Testing): 87 passed, 1 Release-only performance case skipped, 0 failed. Release acceptance passed 4 of 4, and static safety and its tests pass.
+
+`VERIFIED`: Installed the Release (executable SHA-256 `0ca3dd668eebc86e772732a7b316402049cda17ce3cc15c54808e3334da9ef62`, ad-hoc, Hardened Runtime, strict verification passed). With it running, a live Chrome copy and a live WebKit copy were each cleaned automatically to plain text plus the Tracker Free marker. Tracker Free was stopped while the raw inventories were captured. The user's prior clipboard link was saved first and restored afterwards.
+
+`OPEN`: The Safari app itself was not driven, because doing so would have needed Safari automation settings changed. The evidence comes from the same system WebKit inside a WebKit view.
+

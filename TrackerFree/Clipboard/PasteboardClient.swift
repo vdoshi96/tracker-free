@@ -11,8 +11,15 @@ public struct PasteboardGeneration: RawRepresentable, Hashable, Sendable {
 public enum PasteboardTypeIdentifier {
     public static let plainText = "public.utf8-plain-text"
     public static let url = "public.url"
-    /// Accepted only as a redundant companion; see `RedundantURLHTML`.
+    /// Companion types, each admitted only when proven redundant or inert.
+    /// See `PasteboardCompanionPolicy`.
     public static let html = "public.html"
+    public static let rtf = "public.rtf"
+    public static let webArchive = "com.apple.webarchive"
+    public static let utf16ExternalPlainText = "public.utf16-external-plain-text"
+    public static let webKitCustomData = "com.apple.WebKit.custom-pasteboard-data"
+    public static let chromiumSourceURL = "org.chromium.source-url"
+    public static let chromiumSourceFrameToken = "org.chromium.internal.source-rfh-token"
     public static let trackerFreeMarker = "com.vishal.TrackerFree.cleaned-v1"
 
     public static let concealed = "org.nspasteboard.ConcealedType"
@@ -52,26 +59,33 @@ public enum ClipboardPermissionState: Equatable, Sendable {
 public struct PasteboardContent: Equatable, Sendable {
     public let plainText: String?
     public let url: String?
-    /// A redundant HTML companion: markup whose only text is the plain-text URL.
+    /// Browser-added representations proven redundant with, or inert beside,
+    /// the plain-text URL, keyed by type identifier and kept byte-for-byte.
     ///
-    /// It is retained solely so rollback and Restore Original reproduce the
-    /// original item. A cleaned write never carries it, because it would paste
-    /// the tracked URL back into rich-text destinations.
-    public let html: String?
+    /// They are retained solely so rollback and Restore Original reproduce the
+    /// original item. A cleaned write never carries them: rich ones would paste
+    /// the tracked URL back, and metadata describes the uncleaned copy.
+    public let companions: [String: Data]
 
-    public init(plainText: String? = nil, url: String? = nil, html: String? = nil) {
+    public init(
+        plainText: String? = nil,
+        url: String? = nil,
+        companions: [String: Data] = [:]
+    ) {
         self.plainText = plainText
         self.url = url
-        self.html = html
+        self.companions = companions
     }
 
-    /// HTML alone is never cleanable content; it only accompanies plain text.
+    /// Companions alone are never cleanable content; they only accompany plain text.
     public var isEmpty: Bool {
         plainText == nil && url == nil
     }
 
-    public var combinedUTF8ByteCount: Int {
-        (plainText?.utf8.count ?? 0) + (url?.utf8.count ?? 0) + (html?.utf8.count ?? 0)
+    public var combinedByteCount: Int {
+        (plainText?.utf8.count ?? 0)
+            + (url?.utf8.count ?? 0)
+            + companions.values.reduce(0) { $0 + $1.count }
     }
 }
 

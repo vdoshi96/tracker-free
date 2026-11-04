@@ -591,9 +591,9 @@ public final class ClipboardCoordinator: ObservableObject {
         for input: PasteboardContent
     ) -> Bool {
         guard !output.content.isEmpty,
-              output.content.html == nil,
+              output.content.companions.isEmpty,
               output.content != input,
-              output.content.combinedUTF8ByteCount <=
+              output.content.combinedByteCount <=
                   PasteboardSnapshotReader.maximumCombinedBytes,
               output.removedParameterNames.indices.count > 0,
               output.removedParameterNames.indices.count <= Self.maximumRemovedNames,

@@ -6,7 +6,7 @@
 
 `VERIFIED`: XCTest covers fake-pasteboard coordinator races, named `NSPasteboard.withUniqueName()` integration, timers, lifecycle, bounded imports, Release acceptance/performance, and XCUITest menu/Settings behavior.
 
-`VERIFIED`: The current Debug run (2026-11-04) reported 87 top-level tests (83 XCTest and 4 Swift Testing): 86 passed, one expected Release-only performance skip, and zero failures. An earlier settled run's parameterized/device-configuration expansion reported 150 passing cases and zero failures.
+`VERIFIED`: The current Debug run (2026-11-04) reported 88 top-level tests (84 XCTest and 4 Swift Testing): 87 passed, one expected Release-only performance skip, and zero failures. An earlier settled run's parameterized/device-configuration expansion reported 150 passing cases and zero failures.
 
 Ordinary automated tests must never use `NSPasteboard.general`. A static guard permits `.general` only in the production adapter and a separately isolated opt-in target.
 
@@ -48,7 +48,12 @@ All 74 table-driven fixtures from the implementation brief pass. Required groups
 | 56–65 | Literal Unicode, Punycode, exact whitespace envelope, leading/multiple newlines, prose/code/commands/multiple URLs, and 64 KiB boundary |
 | 66–74 | Plain text, URL, matching/conflicting dual representations, rich/custom/multiple/remote values, lazy ownership loss, and foreign marker |
 
-`VERIFIED`: Redundant-HTML coverage beyond the numbered corpus: named-pasteboard acceptance of Firefox, Chromium, and doctype/comment envelopes; rejection of a different URL, extra text, a hyperlink, an image, formatting, a style element, an unknown entity, an unterminated tag or comment, a bare `<`, empty HTML, and HTML without plain text; a real-transformer clean of an X Copy link item to plain text only, with byte-exact Restore Original; fake-pasteboard rollback that restores the HTML companion; and rejection of a transform output that carries HTML.
+`VERIFIED`: Browser-companion coverage beyond the numbered corpus:
+
+- The observed Firefox, Chrome, and WebKit Copy link inventories each clean to plain text only through the real transformer, and Restore Original reproduces every representation byte-for-byte.
+- HTML is accepted in the Firefox, Chromium, and doctype/comment envelopes. It is rejected for a different URL, extra text, a hyperlink, an image, formatting, a style element, an unknown entity, an unterminated tag or comment, a bare `<`, or empty markup.
+- Other companions are rejected for: RTF with different text, a hyperlink, or malformed bytes (real and fake pasteboards); a web archive with subresources, rich HTML, an unknown key, a non-HTML MIME type, or bytes that aren't a property list; WebKit custom data with entries, trailing bytes, or another version; mismatched UTF-16; an oversize Chromium token; a Chromium source URL with a newline or invalid UTF-8; an unknown type; any companion without plain text; and any companion on a marker-bearing readback.
+- Fake-pasteboard rollback restores companions, and a transform output that carries a companion is rejected.
 
 Critical byte fixtures include:
 
@@ -133,6 +138,8 @@ xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Deb
 xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES test -only-testing:TrackerFreeTests/AcceptanceTests
 xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release build
 codesign --verify --deep --strict '/Applications/Tracker Free.app'
+zsh Scripts/VerifyStaticSafety.sh
+zsh Scripts/VerifyStaticSafetyTests.sh
 xcrun swift Scripts/DocsParity.swift --check
 xcrun swift Scripts/DocsParityIntegrationTests.swift
 ```
