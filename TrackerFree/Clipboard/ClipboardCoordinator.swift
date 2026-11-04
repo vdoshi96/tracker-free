@@ -591,6 +591,7 @@ public final class ClipboardCoordinator: ObservableObject {
         for input: PasteboardContent
     ) -> Bool {
         guard !output.content.isEmpty,
+              output.content.html == nil,
               output.content != input,
               output.content.combinedUTF8ByteCount <=
                   PasteboardSnapshotReader.maximumCombinedBytes,

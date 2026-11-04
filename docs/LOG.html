@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=854890dde805da326b975e17243cba528395c5e76dd23358c14845d0f8e3ec78 source-path-base64=ZG9jcy9MT0cubWQ= -->
+<!-- tracker-free-docs-parity:v1 source-sha256=ea8a36dac93a290f18d3d3fc441b432c2cc8d4d627611adc78c7092f3a0b6148 source-path-base64=ZG9jcy9MT0cubWQ= -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="854890dde805da326b975e17243cba528395c5e76dd23358c14845d0f8e3ec78">
+  <meta name="source-sha256" content="ea8a36dac93a290f18d3d3fc441b432c2cc8d4d627611adc78c7092f3a0b6148">
   <title>Project Log</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -68,5 +68,12 @@
   <p><code>VERIFIED</code>: The Debug <code>-only-testing:TrackerFreeTests</code> run ran 83 top-level tests (79 XCTest and 4 Swift Testing): 82 passed, 1 Release-only performance case was skipped, and none failed.</p>
   <p><code>VERIFIED</code>: The refreshed <code>docs/screenshots/rules.png</code> and the new <code>general.png</code> are XCUITest window captures of the Release build, taken in the isolated <code>--ui-testing-open-settings</code> mode with a fake pasteboard and in-memory state. The General capture turned on automatic cleaning in that isolated state only. Its Launch at Login row reports the build host's live <code>SMAppService</code> status and does not close the Launch at Login gate in <a href="STATUS.html">Current status</a>.</p>
   <p><code>OPEN</code>: The build host locked during capture. A Rules view scrolled to the host-scoped rules could not be captured, and the existing <code>testSettingsSceneCanOpenForDocklessApp</code> could not be rerun afterwards, so it has no fresh result from this session.</p>
+  <h2 id="2026-11-04-x-copy-link-from-firefox-left-uncleaned">2026-11-04 — X Copy link from Firefox left uncleaned</h2>
+  <p><code>VERIFIED</code>: Symptom: a link copied with X's web &quot;Copy link&quot; in Firefox stayed on the clipboard unchanged. The live clipboard item advertised <code>public.html</code> and <code>public.utf8-plain-text</code>. The HTML was Firefox's document wrapper around a single span holding the same URL, which a page's copy command produces. The snapshot reader allowed only plain text and URL types, so it rejected the item as <code>unsupportedType</code> before cleaning. Debug-level diagnostics are not persisted, so the unified log held no record of the skip.</p>
+  <p><code>VERIFIED</code>: A second gap was present behind the first: the URL also carried an X <code>a=</code> value beside <code>s=20</code>, and only <code>s</code> and <code>t</code> had X rules, so the item would have been cleaned only partly even if it had been admitted.</p>
+  <p><code>VERIFIED</code>: Fix: <code>public.html</code> is admitted only as a plain-text companion whose markup is limited to <code>html</code>, <code>head</code>, <code>meta</code>, <code>body</code>, and <code>span</code> elements, comments, and a doctype, and whose decoded, edge-trimmed text equals the plain-text URL core. It is kept in the snapshot for byte-exact rollback and Restore Original. Cleaned writes never carry HTML. Added <code>builtin.remove.x.status.a</code>, scoped like the <code>s</code> and <code>t</code> rules, and bumped the rule-set revision to <code>2026110301</code>.</p>
+  <p><code>VERIFIED</code>: New tests failed before the fix (<code>unsupportedType</code> for the redundant HTML item, <code>?a=xa3_synthetic</code> retained, and an HTML-bearing transform committed) and pass after it. The Debug <code>-only-testing:TrackerFreeTests</code> run reported 87 top-level tests (83 XCTest and 4 Swift Testing): 86 passed, 1 Release-only performance case skipped, 0 failed. Release acceptance passed 4 of 4. The static safety scans found no violations; the script's <code>rg</code> scans were rerun with <code>grep</code> because <code>rg</code> was not installed (see <a href="STATUS.html">Current status</a>).</p>
+  <p><code>VERIFIED</code>: Installed the new Release at <code>/Applications/Tracker Free.app</code> (executable SHA-256 <code>874236fcaafefc46170468617832df2bbcd32349112ca06800d0bf5b6e54259c</code>, ad-hoc, Hardened Runtime, strict verification passed) after copying the prior build to a temporary backup. A General-pasteboard item reproducing the Firefox inventory was cleaned automatically to plain text plus the Tracker Free marker within one polling interval.</p>
+  <p><code>OPEN</code>: Safari page-initiated copies also add web archive and RTF types and therefore remain hard skips. Chrome's live inventory for X Copy link was not observed in this session; its documented <code>&lt;meta charset&gt;</code> plus span shape is covered by an isolated test.</p>
 </body>
 </html>

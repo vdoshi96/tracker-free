@@ -81,9 +81,11 @@ Unknown-preserve remains the final safety net. A verified host/path-specific rem
 
 ### X and Twitter
 
-`INFERENCE`: Remove `s` and `t` only on exact `x.com`, `www.x.com`, `twitter.com`, `www.twitter.com`, and `mobile.twitter.com` hosts, and only on anchored `/{valid-handle}/status/{digits}` or `/i/web/status/{digits}` forms with permitted status suffixes.
+`INFERENCE`: Remove `s`, `t`, and `a` only on exact `x.com`, `www.x.com`, `twitter.com`, `www.twitter.com`, and `mobile.twitter.com` hosts, and only on anchored `/{valid-handle}/status/{digits}` or `/i/web/status/{digits}` forms with permitted status suffixes.
 
-Hard-exclude redirect, authentication, account, settings, reset, and email paths. Never remove `t` globally.
+Hard-exclude redirect, authentication, account, settings, reset, and email paths. Never remove `t` or `a` globally.
+
+`INFERENCE`: `a` was added in rule-set revision `2026110301` after X web Copy link URLs were observed carrying an opaque `a=` value beside `s=20`. X has not documented it; a status permalink resolves without it. Like `s` and `t`, it is removed only on anchored status permalinks.
 
 ### YouTube
 

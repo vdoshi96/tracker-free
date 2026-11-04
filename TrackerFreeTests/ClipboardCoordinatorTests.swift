@@ -340,6 +340,51 @@ final class ClipboardCoordinatorTests: XCTestCase {
     }
 
     @MainActor
+    func testFailedWriteRollsBackRedundantHTMLCompanion() {
+        let original = PasteboardContent(
+            plainText: "https://example.test/p?utm_source=x",
+            html: "<span>https://example.test/p?utm_source=x</span>"
+        )
+        let pasteboard = FakePasteboardClient()
+        let coordinator = makeCoordinator(pasteboard: pasteboard)
+        pasteboard.replaceExternally(with: [FakePasteboardItem(content: original)])
+        pasteboard.failNextCommit = true
+
+        coordinator.pollOnce()
+
+        XCTAssertEqual(coordinator.lastResult, .writeFailed)
+        XCTAssertEqual(pasteboard.committedWriteCount, 2, "write, then rollback")
+        XCTAssertEqual(pasteboard.items, [FakePasteboardItem(content: original)])
+    }
+
+    @MainActor
+    func testTransformOutputCarryingHTMLIsRejected() {
+        let original = PasteboardContent(
+            plainText: "https://example.test/p?utm_source=x",
+            html: "<span>https://example.test/p?utm_source=x</span>"
+        )
+        let pasteboard = FakePasteboardClient()
+        let coordinator = makeCoordinator(
+            pasteboard: pasteboard,
+            transform: { _, _ in
+                .changed(ClipboardTransformOutput(
+                    content: PasteboardContent(
+                        plainText: "https://example.test/p",
+                        html: "<span>https://example.test/p</span>"
+                    ),
+                    removedParameterNames: ["utm_source"]
+                ))
+            }
+        )
+        pasteboard.replaceExternally(with: [FakePasteboardItem(content: original)])
+
+        coordinator.pollOnce()
+
+        XCTAssertEqual(pasteboard.committedWriteCount, 0)
+        XCTAssertEqual(pasteboard.items, [FakePasteboardItem(content: original)])
+    }
+
+    @MainActor
     func testCorruptReadbackRollsBackOnlyOwnedGeneration() {
         let original = content("https://example.test/p?utm_source=x")
         let pasteboard = FakePasteboardClient()

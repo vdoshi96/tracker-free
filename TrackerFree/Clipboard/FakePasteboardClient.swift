@@ -15,6 +15,9 @@ public struct FakePasteboardItem: Equatable, Sendable {
         if let url = content.url {
             representations[PasteboardTypeIdentifier.url] = Data(url.utf8)
         }
+        if let html = content.html {
+            representations[PasteboardTypeIdentifier.html] = Data(html.utf8)
+        }
         if includesTrackerFreeMarker {
             representations[PasteboardTypeIdentifier.trackerFreeMarker] = Data()
         }

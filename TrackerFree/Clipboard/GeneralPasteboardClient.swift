@@ -53,6 +53,14 @@ final class AppKitPasteboardClient {
                 return nil
             }
         }
+        if let html = request.content.html {
+            // Only rollback and Restore Original carry HTML; cleaned writes never do.
+            guard !request.includesTrackerFreeMarker,
+                  item.setString(html, forType: .html)
+            else {
+                return nil
+            }
+        }
         if request.includesTrackerFreeMarker {
             guard item.setData(
                 Data(),

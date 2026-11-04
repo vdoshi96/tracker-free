@@ -6,7 +6,7 @@
 
 `VERIFIED`: XCTest covers fake-pasteboard coordinator races, named `NSPasteboard.withUniqueName()` integration, timers, lifecycle, bounded imports, Release acceptance/performance, and XCUITest menu/Settings behavior.
 
-`VERIFIED`: The settled Debug run reported 79 top-level tests: 78 passed, one expected Release-only performance skip, and zero failures. Parameterized/device-configuration expansion reported 150 passing cases and zero failures.
+`VERIFIED`: The current Debug run (2026-11-04) reported 87 top-level tests (83 XCTest and 4 Swift Testing): 86 passed, one expected Release-only performance skip, and zero failures. An earlier settled run's parameterized/device-configuration expansion reported 150 passing cases and zero failures.
 
 Ordinary automated tests must never use `NSPasteboard.general`. A static guard permits `.general` only in the production adapter and a separately isolated opt-in target.
 
@@ -48,11 +48,14 @@ All 74 table-driven fixtures from the implementation brief pass. Required groups
 | 56–65 | Literal Unicode, Punycode, exact whitespace envelope, leading/multiple newlines, prose/code/commands/multiple URLs, and 64 KiB boundary |
 | 66–74 | Plain text, URL, matching/conflicting dual representations, rich/custom/multiple/remote values, lazy ownership loss, and foreign marker |
 
+`VERIFIED`: Redundant-HTML coverage beyond the numbered corpus: named-pasteboard acceptance of Firefox, Chromium, and doctype/comment envelopes; rejection of a different URL, extra text, a hyperlink, an image, formatting, a style element, an unknown entity, an unterminated tag or comment, a bare `<`, empty HTML, and HTML without plain text; a real-transformer clean of an X Copy link item to plain text only, with byte-exact Restore Original; fake-pasteboard rollback that restores the HTML companion; and rejection of a transform output that carries HTML.
+
 Critical byte fixtures include:
 
 - `https://e.test/p?ut%6D_source=x&a=%2f&b=%41` becoming `https://e.test/p?a=%2f&b=%41`.
 - `https://e.test/p?utm_source=x&&q=` becoming `https://e.test/p?&q=`.
 - `https://e.test/p?UTM_source=x` remaining unchanged.
+- `https://x.com/person/status/123?a=xa3_synthetic&s=20` becoming `https://x.com/person/status/123`, while `a` on `x.com/home` or another host is kept.
 - `https://x.com.evil/user/status/123?s=20&t=abc` remaining unchanged.
 - Signed/authentication/invitation values with otherwise removable fields remaining unchanged.
 - `" \thttps://e.test/p?utm_source=x \r\n"` retaining its exact envelope around the cleaned core.

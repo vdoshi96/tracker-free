@@ -50,6 +50,7 @@
 - [Apple Map Links](https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/MapLinks/MapLinks.html)
 - [Google Maps URLs](https://developers.google.com/maps/documentation/urls/get-started)
 - [Amazon Associates agreement](https://affiliate-program.amazon.com/help/operating/agreement/)
+- [Cybernews: X tracks copied links](https://cybernews.com/privacy/twitter-tracks-copied-links/) (secondary report of the X `a=` share field)
 
 `INFERENCE`: `fbclid`, YouTube `si`, X/Twitter share fields, and Instagram share fields have community or behavioral evidence but lack equivalent current first-party semantic guarantees. Their documentation and rule confidence must say so.
 
