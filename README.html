@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=6c55aa7c1f8bfd869cd0aaf10ed442da6593a50d3e2a18376651018bd80a4338 source-path-base64=UkVBRE1FLm1k -->
+<!-- tracker-free-docs-parity:v1 source-sha256=c55e40ef33ef4564fe21c7f8f72698c545c972dd7029037b1c17a24bfa30d769 source-path-base64=UkVBRE1FLm1k -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="6c55aa7c1f8bfd869cd0aaf10ed442da6593a50d3e2a18376651018bd80a4338">
+  <meta name="source-sha256" content="c55e40ef33ef4564fe21c7f8f72698c545c972dd7029037b1c17a24bfa30d769">
   <title>Tracker Free</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -96,7 +96,7 @@
   <li>**Local and unusual hosts.** <code>localhost</code>, private and IP-literal addresses, userinfo (<code>user@host</code>), non-HTTP schemes, scheme-relative links, and literal-Unicode URLs are skipped.</li>
   <li>**Anything that isn't exactly one link.** Prose, Markdown, code, shell commands, text with several URLs, rich text, images, files, custom pasteboard types, multiple items, and content arriving from another device are skipped.</li>
 </ul>
-  <p>  One narrow exception: when a web page copies a link as text (X's &quot;Copy link&quot; does this), the browser also adds a tiny HTML copy holding nothing but the same URL. Tracker Free cleans that link, writes back plain text only so a rich-text paste can't bring the tracker back, and restores the original HTML too if you choose Restore Original. HTML containing anything else, such as a hyperlink, formatting, an image, or extra words, is still skipped.</p>
+  <p>  One narrow exception: when a web page copies a link as text (X's &quot;Copy link&quot; does this), Firefox, Chrome, and Safari also add extra copies of that same link. These can be an HTML or RTF version, a web archive, a UTF-16 version, or a note of which page it came from. Tracker Free checks that each extra copy contains nothing but the same URL, or no content at all. It then cleans the link and writes back plain text only, so a rich-text paste can't bring the tracker back. If you choose Restore Original, every original version comes back exactly. If any extra copy holds anything else, such as a hyperlink, formatting, an image, extra words, or page-supplied data, the copy is still skipped.</p>
   <ul>
   <li>**Anything ambiguous.** Malformed percent-encoding, <code>;</code>-separated queries, rule conflicts, oversize input (more than 64 KiB), or a clipboard that changes during processing all mean no write happens.</li>
 </ul>

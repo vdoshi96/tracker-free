@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 public struct PasteboardSnapshot: Equatable, Sendable {
@@ -82,10 +83,11 @@ enum PasteboardSnapshotReader {
         case .require:
             allowedTypes.insert(PasteboardTypeIdentifier.trackerFreeMarker)
         case .forbid:
-            // Browsers add HTML when a page copies a URL as text (for example X's
-            // web "Copy link"). It is admitted only as a plain-text companion and
-            // only when proven redundant below; cleaned writes never carry it.
-            allowedTypes.insert(PasteboardTypeIdentifier.html)
+            // Browsers add companions when a page copies a URL as text (for
+            // example X's web "Copy link"). They are admitted only beside plain
+            // text and only when proven redundant below; cleaned writes never
+            // carry them.
+            allowedTypes.formUnion(PasteboardCompanionPolicy.companionTypes)
         }
         guard typeSet.isSubset(of: allowedTypes) else {
             return .failure(.unsupportedType)
@@ -93,7 +95,8 @@ enum PasteboardSnapshotReader {
         guard !typeSet.isDisjoint(with: PasteboardTypeIdentifier.allowedContent) else {
             return .failure(.missingAllowedRepresentation)
         }
-        if typeSet.contains(PasteboardTypeIdentifier.html),
+        let companionTypes = typeSet.intersection(PasteboardCompanionPolicy.companionTypes)
+        if !companionTypes.isEmpty,
            !typeSet.contains(PasteboardTypeIdentifier.plainText) {
             return .failure(.unsupportedType)
         }
@@ -116,13 +119,11 @@ enum PasteboardSnapshotReader {
         var combinedByteCount = 0
         var plainText: String?
         var url: String?
-        var html: String?
+        var companions: [String: Data] = [:]
 
-        for typeIdentifier in [
-            PasteboardTypeIdentifier.plainText,
-            PasteboardTypeIdentifier.url,
-            PasteboardTypeIdentifier.html,
-        ] where typeSet.contains(typeIdentifier) {
+        // Every read, primary or companion, shares one generation, duration, and
+        // combined-size bound.
+        func readBounded(_ typeIdentifier: String) -> Result<Data, PasteboardSnapshotFailure> {
             let clock = ContinuousClock()
             let readStart = clock.now
             guard let data = client.data(forTypeIdentifier: typeIdentifier, itemAt: 0) else {
@@ -142,6 +143,18 @@ enum PasteboardSnapshotReader {
                 return .failure(.sizeLimitExceeded)
             }
             combinedByteCount = nextByteCount
+            return .success(data)
+        }
+
+        for typeIdentifier in [
+            PasteboardTypeIdentifier.plainText,
+            PasteboardTypeIdentifier.url,
+        ] where typeSet.contains(typeIdentifier) {
+            let data: Data
+            switch readBounded(typeIdentifier) {
+            case let .success(value): data = value
+            case let .failure(failure): return .failure(failure)
+            }
 
             guard let value = String(data: data, encoding: .utf8),
                   Data(value.utf8) == data
@@ -149,17 +162,25 @@ enum PasteboardSnapshotReader {
                 return .failure(.invalidUTF8)
             }
 
-            switch typeIdentifier {
-            case PasteboardTypeIdentifier.plainText:
+            if typeIdentifier == PasteboardTypeIdentifier.plainText {
                 plainText = value
-            case PasteboardTypeIdentifier.url:
+            } else {
                 url = value
-            default:
-                html = value
             }
         }
 
-        let content = PasteboardContent(plainText: plainText, url: url, html: html)
+        for typeIdentifier in companionTypes.sorted() {
+            switch readBounded(typeIdentifier) {
+            case let .success(data): companions[typeIdentifier] = data
+            case let .failure(failure): return .failure(failure)
+            }
+        }
+
+        let content = PasteboardContent(
+            plainText: plainText,
+            url: url,
+            companions: companions
+        )
         guard !content.isEmpty else {
             return .failure(.missingAllowedRepresentation)
         }
@@ -172,10 +193,9 @@ enum PasteboardSnapshotReader {
             }
         }
 
-        if let html {
+        if !companions.isEmpty {
             guard let plainText,
-                  let plainTextCore = PlainTextEnvelope.core(from: plainText),
-                  RedundantURLHTML.textContent(of: html) == plainTextCore
+                  PasteboardCompanionPolicy.areRedundant(companions, plainText: plainText)
             else {
                 return .failure(.unsupportedType)
             }
@@ -242,6 +262,219 @@ enum PlainTextEnvelope {
             return nil
         }
         return String(decoding: bytes[coreStart..<coreEnd], as: UTF8.self)
+    }
+}
+
+/// Decides which browser-added representations may accompany a plain-text URL.
+///
+/// `VERIFIED` (2026-11-04): a page copy that mirrors X's web "Copy link" puts one
+/// item on the General pasteboard holding `public.utf8-plain-text` plus:
+/// - Firefox: `public.html`.
+/// - Chrome 156: `public.html`, `org.chromium.source-url`, and
+///   `org.chromium.internal.source-rfh-token`.
+/// - System WebKit (Safari 27.3's engine): `com.apple.webarchive`, `public.rtf`,
+///   `public.html`, `public.utf16-external-plain-text`, and
+///   `com.apple.WebKit.custom-pasteboard-data`.
+///
+/// Each companion must prove it adds nothing: rich forms must render exactly the
+/// plain-text URL with no link or embedded resource, alternate text must equal
+/// the plain text, and metadata must be bounded and carry no page-supplied data.
+/// Anything unproven keeps the whole item a hard skip.
+enum PasteboardCompanionPolicy {
+    static let companionTypes: Set<String> = [
+        PasteboardTypeIdentifier.html,
+        PasteboardTypeIdentifier.rtf,
+        PasteboardTypeIdentifier.webArchive,
+        PasteboardTypeIdentifier.utf16ExternalPlainText,
+        PasteboardTypeIdentifier.webKitCustomData,
+        PasteboardTypeIdentifier.chromiumSourceURL,
+        PasteboardTypeIdentifier.chromiumSourceFrameToken,
+    ]
+
+    static let maximumChromiumSourceURLBytes = 8 * 1_024
+    static let maximumChromiumFrameTokenBytes = 64
+    static let maximumWebKitOriginBytes = 2 * 1_024
+
+    private static let webArchiveResourceKeys: Set<String> = [
+        "WebResourceData",
+        "WebResourceFrameName",
+        "WebResourceMIMEType",
+        "WebResourceTextEncodingName",
+        "WebResourceURL",
+    ]
+
+    @MainActor
+    static func areRedundant(_ companions: [String: Data], plainText: String) -> Bool {
+        guard let core = PlainTextEnvelope.core(from: plainText) else {
+            return false
+        }
+        return companions.allSatisfy { type, data in
+            isRedundant(type: type, data: data, plainText: plainText, core: core)
+        }
+    }
+
+    @MainActor
+    private static func isRedundant(
+        type: String,
+        data: Data,
+        plainText: String,
+        core: String
+    ) -> Bool {
+        switch type {
+        case PasteboardTypeIdentifier.html:
+            return strictUTF8(data).flatMap(RedundantURLHTML.textContent(of:)) == core
+        case PasteboardTypeIdentifier.rtf:
+            return rtfText(data) == core
+        case PasteboardTypeIdentifier.webArchive:
+            return webArchiveText(data) == core
+        case PasteboardTypeIdentifier.utf16ExternalPlainText:
+            return externalUTF16(data) == plainText
+        case PasteboardTypeIdentifier.webKitCustomData:
+            return isEmptyWebKitCustomData(data)
+        case PasteboardTypeIdentifier.chromiumSourceURL:
+            return isInertSourceURL(data)
+        case PasteboardTypeIdentifier.chromiumSourceFrameToken:
+            return (1...maximumChromiumFrameTokenBytes).contains(data.count)
+        default:
+            return false
+        }
+    }
+
+    private static func strictUTF8(_ data: Data) -> String? {
+        guard let value = String(data: data, encoding: .utf8),
+              Data(value.utf8) == data
+        else {
+            return nil
+        }
+        return value
+    }
+
+    /// RTF text with edge whitespace trimmed, or nil when the document carries a
+    /// link or attachment. Styling such as font and kerning is not content.
+    @MainActor
+    private static func rtfText(_ data: Data) -> String? {
+        guard data.starts(with: Array("{\\rtf".utf8)),
+              let attributed = try? NSAttributedString(
+                  data: data,
+                  options: [.documentType: NSAttributedString.DocumentType.rtf],
+                  documentAttributes: nil
+              )
+        else {
+            return nil
+        }
+        var index = 0
+        while index < attributed.length {
+            var range = NSRange(location: 0, length: 0)
+            let attributes = attributed.attributes(at: index, effectiveRange: &range)
+            if attributes[.link] != nil || attributes[.attachment] != nil {
+                return nil
+            }
+            index = max(index + 1, NSMaxRange(range))
+        }
+        return trimmingHTMLWhitespace(attributed.string)
+    }
+
+    /// The text of a web archive holding exactly one redundant HTML resource and
+    /// no subresources or subframes.
+    private static func webArchiveText(_ data: Data) -> String? {
+        guard let archive = try? PropertyListSerialization.propertyList(
+                  from: data,
+                  format: nil
+              ) as? [String: Any],
+              Set(archive.keys) == ["WebMainResource"],
+              let resource = archive["WebMainResource"] as? [String: Any],
+              Set(resource.keys).isSubset(of: webArchiveResourceKeys),
+              resource["WebResourceMIMEType"] as? String == "text/html",
+              let body = resource["WebResourceData"] as? Data,
+              let html = strictUTF8(body)
+        else {
+            return nil
+        }
+        if let encoding = resource["WebResourceTextEncodingName"] {
+            guard let name = encoding as? String, name.lowercased() == "utf-8" else {
+                return nil
+            }
+        }
+        for key in ["WebResourceFrameName", "WebResourceURL"] where resource[key] != nil {
+            guard resource[key] is String else {
+                return nil
+            }
+        }
+        return RedundantURLHTML.textContent(of: html)
+    }
+
+    /// UTF-16 text with a mandatory byte-order mark, as "external" text carries.
+    private static func externalUTF16(_ data: Data) -> String? {
+        guard data.count >= 2, data.count % 2 == 0 else {
+            return nil
+        }
+        let encoding: String.Encoding
+        switch (data[data.startIndex], data[data.startIndex + 1]) {
+        case (0xFF, 0xFE): encoding = .utf16LittleEndian
+        case (0xFE, 0xFF): encoding = .utf16BigEndian
+        default: return nil
+        }
+        return String(data: data.dropFirst(2), encoding: encoding)
+    }
+
+    /// WebKit's PasteboardCustomData serialization, version 1: a UInt32 version,
+    /// the origin as a UInt32 length (0xFFFFFFFF for null) with an 8-bit flag and
+    /// characters, then the same-origin string map and ordered type list as UInt64
+    /// counts. Only empty map and list counts prove no page-supplied data.
+    private static func isEmptyWebKitCustomData(_ data: Data) -> Bool {
+        let bytes = [UInt8](data)
+        func littleEndianUInt32(at offset: Int) -> UInt32? {
+            guard offset + 4 <= bytes.count else {
+                return nil
+            }
+            return bytes[offset..<(offset + 4)].reversed().reduce(0) { $0 << 8 | UInt32($1) }
+        }
+        guard littleEndianUInt32(at: 0) == 1,
+              let originLength = littleEndianUInt32(at: 4)
+        else {
+            return false
+        }
+
+        let countsStart: Int
+        if originLength == UInt32.max {
+            countsStart = 8
+        } else {
+            guard bytes.count > 8, bytes[8] <= 1 else {
+                return false
+            }
+            let characterBytes = Int(originLength) * (bytes[8] == 1 ? 1 : 2)
+            guard characterBytes <= maximumWebKitOriginBytes else {
+                return false
+            }
+            countsStart = 9 + characterBytes
+        }
+        guard countsStart + 16 == bytes.count else {
+            return false
+        }
+        return bytes[countsStart...].allSatisfy { $0 == 0 }
+    }
+
+    /// The source page's address as Chromium records it: bounded UTF-8 with no
+    /// control characters. It describes the copy and is never written back clean.
+    private static func isInertSourceURL(_ data: Data) -> Bool {
+        guard (1...maximumChromiumSourceURLBytes).contains(data.count),
+              strictUTF8(data) != nil
+        else {
+            return false
+        }
+        return data.allSatisfy { $0 >= 0x20 && $0 != 0x7F }
+    }
+
+    private static func trimmingHTMLWhitespace(_ value: String) -> String {
+        let whitespace: Set<Character> = [" ", "\t", "\n", "\u{0C}", "\r", "\r\n"]
+        var characters = Substring(value)
+        while let first = characters.first, whitespace.contains(first) {
+            characters.removeFirst()
+        }
+        while let last = characters.last, whitespace.contains(last) {
+            characters.removeLast()
+        }
+        return String(characters)
     }
 }
 

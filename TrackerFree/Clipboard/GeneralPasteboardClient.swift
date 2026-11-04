@@ -37,7 +37,7 @@ final class AppKitPasteboardClient {
 
     func prepareWrite(_ request: PasteboardWriteRequest) -> PasteboardPreparedWrite? {
         guard !request.content.isEmpty,
-              request.content.combinedUTF8ByteCount <= PasteboardSnapshotReader.maximumCombinedBytes
+              request.content.combinedByteCount <= PasteboardSnapshotReader.maximumCombinedBytes
         else {
             return nil
         }
@@ -53,11 +53,12 @@ final class AppKitPasteboardClient {
                 return nil
             }
         }
-        if let html = request.content.html {
-            // Only rollback and Restore Original carry HTML; cleaned writes never do.
-            guard !request.includesTrackerFreeMarker,
-                  item.setString(html, forType: .html)
-            else {
+        // Only rollback and Restore Original carry companions; cleaned writes never do.
+        if !request.content.companions.isEmpty, request.includesTrackerFreeMarker {
+            return nil
+        }
+        for (type, data) in request.content.companions {
+            guard item.setData(data, forType: NSPasteboard.PasteboardType(type)) else {
                 return nil
             }
         }

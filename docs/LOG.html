@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=ea8a36dac93a290f18d3d3fc441b432c2cc8d4d627611adc78c7092f3a0b6148 source-path-base64=ZG9jcy9MT0cubWQ= -->
+<!-- tracker-free-docs-parity:v1 source-sha256=8a58767473c07d5d9cc95f11ec229e5a930a0832fc66cdb166c64fd86f17e103 source-path-base64=ZG9jcy9MT0cubWQ= -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="ea8a36dac93a290f18d3d3fc441b432c2cc8d4d627611adc78c7092f3a0b6148">
+  <meta name="source-sha256" content="8a58767473c07d5d9cc95f11ec229e5a930a0832fc66cdb166c64fd86f17e103">
   <title>Project Log</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -75,5 +75,12 @@
   <p><code>VERIFIED</code>: New tests failed before the fix (<code>unsupportedType</code> for the redundant HTML item, <code>?a=xa3_synthetic</code> retained, and an HTML-bearing transform committed) and pass after it. The Debug <code>-only-testing:TrackerFreeTests</code> run reported 87 top-level tests (83 XCTest and 4 Swift Testing): 86 passed, 1 Release-only performance case skipped, 0 failed. Release acceptance passed 4 of 4. The static safety scans found no violations; the script's <code>rg</code> scans were rerun with <code>grep</code> because <code>rg</code> was not installed (see <a href="STATUS.html">Current status</a>).</p>
   <p><code>VERIFIED</code>: Installed the new Release at <code>/Applications/Tracker Free.app</code> (executable SHA-256 <code>874236fcaafefc46170468617832df2bbcd32349112ca06800d0bf5b6e54259c</code>, ad-hoc, Hardened Runtime, strict verification passed) after copying the prior build to a temporary backup. A General-pasteboard item reproducing the Firefox inventory was cleaned automatically to plain text plus the Tracker Free marker within one polling interval.</p>
   <p><code>OPEN</code>: Safari page-initiated copies also add web archive and RTF types and therefore remain hard skips. Chrome's live inventory for X Copy link was not observed in this session; its documented <code>&lt;meta charset&gt;</code> plus span shape is covered by an isolated test.</p>
+  <h2 id="2026-11-04-chrome-and-safari-copy-link-companions-static-safety-scan">2026-11-04 — Chrome and Safari Copy link companions; static safety scan</h2>
+  <p><code>VERIFIED</code>: The earlier fix admitted only HTML, so the same X Copy link from Chrome or Safari would still be skipped. Copying a synthetic URL from a page that mirrors X's span copy showed why. Chrome 156, driven through DevTools with a trusted click and a temporary profile, added <code>org.chromium.source-url</code> and a 24-byte <code>org.chromium.internal.source-rfh-token</code> beside its HTML. The system WebKit that Safari 27.3 uses, run in a WebKit view, added a web archive, RTF, UTF-16 text, and WebKit custom data. Decoding each one showed it was redundant: every rich form renders only the URL, the alternate text matches it, and the custom data holds an origin with empty data and type lists.</p>
+  <p><code>VERIFIED</code>: Generalized <code>PasteboardContent.html</code> to <code>companions</code> (type identifier to original bytes) under <code>PasteboardCompanionPolicy</code>. Each type has its own check, documented in <a href="ARCHITECTURE.html">Architecture</a>. Companions are read with the same generation, duration, and 64 KiB combined bounds as primary text. They are kept for byte-exact rollback and Restore Original and are never carried on a cleaned write.</p>
+  <p><code>VERIFIED</code>: <code>Scripts/VerifyStaticSafety.sh</code> now scans with the base-system <code>grep</code> and fails closed when <code>grep</code> reports an error. The new <code>Scripts/VerifyStaticSafetyTests.sh</code> failed against the old script on a PATH without <code>rg</code>: three planted violations passed. It passes against the new script, which also rejects an unreadable source subdirectory.</p>
+  <p><code>VERIFIED</code>: The new tests failed before the change (Chrome and WebKit inventories skipped) and pass after it. The Debug <code>-only-testing:TrackerFreeTests</code> run reported 88 top-level tests (84 XCTest and 4 Swift Testing): 87 passed, 1 Release-only performance case skipped, 0 failed. Release acceptance passed 4 of 4, and static safety and its tests pass.</p>
+  <p><code>VERIFIED</code>: Installed the Release (executable SHA-256 <code>0ca3dd668eebc86e772732a7b316402049cda17ce3cc15c54808e3334da9ef62</code>, ad-hoc, Hardened Runtime, strict verification passed). With it running, a live Chrome copy and a live WebKit copy were each cleaned automatically to plain text plus the Tracker Free marker. Tracker Free was stopped while the raw inventories were captured. The user's prior clipboard link was saved first and restored afterwards.</p>
+  <p><code>OPEN</code>: The Safari app itself was not driven, because doing so would have needed Safari automation settings changed. The evidence comes from the same system WebKit inside a WebKit view.</p>
 </body>
 </html>

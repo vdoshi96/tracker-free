@@ -6,17 +6,36 @@ cd "$repository_root"
 
 forbidden_source_pattern='@unchecked Sendable|URLSession|import WebKit|import Network|NWConnection|NWListener|CGEventTap|addGlobalMonitorForEvents|postEvent|Sparkle|Sentry|Firebase|Telemetry'
 
-if rg -n "$forbidden_source_pattern" TrackerFree --glob '*.swift'; then
+# Searches every Swift source under TrackerFree with the base-system grep, so the
+# check never depends on an optional tool. grep exits 0 on a match and 1 on none;
+# any other status (missing tool, unreadable tree) aborts the whole check rather
+# than being mistaken for a clean scan.
+scan_result=''
+scan_swift_sources() {
+  local pattern="$1" exit_code=0
+  scan_result="$(/usr/bin/grep -rnE --include='*.swift' -e "$pattern" TrackerFree)" \
+    || exit_code=$?
+  if (( exit_code > 1 )); then
+    print -u2 "Static safety check failed: could not scan Swift sources (grep exit $exit_code)."
+    exit 1
+  fi
+}
+
+scan_swift_sources "$forbidden_source_pattern"
+if [[ -n "$scan_result" ]]; then
+  print -u2 -r -- "$scan_result"
   print -u2 "Static safety check failed: forbidden API or unsafe suppression found."
   exit 1
 fi
 
-unexpected_general="$(
-  rg -n 'NSPasteboard[.]general' TrackerFree --glob '*.swift' \
-    --glob '!**/Clipboard/GeneralPasteboardClient.swift' || true
-)"
-if [[ -n "$unexpected_general" ]]; then
-  print -u2 "$unexpected_general"
+scan_swift_sources 'NSPasteboard[.]general'
+unexpected_general=()
+for line in "${(@f)scan_result}"; do
+  [[ -z "$line" || "$line" == TrackerFree/Clipboard/GeneralPasteboardClient.swift:* ]] && continue
+  unexpected_general+=("$line")
+done
+if (( ${#unexpected_general} > 0 )); then
+  print -u2 -l -r -- "${unexpected_general[@]}"
   print -u2 "Static safety check failed: General pasteboard escaped its production adapter."
   exit 1
 fi

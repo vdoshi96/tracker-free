@@ -15,8 +15,8 @@ public struct FakePasteboardItem: Equatable, Sendable {
         if let url = content.url {
             representations[PasteboardTypeIdentifier.url] = Data(url.utf8)
         }
-        if let html = content.html {
-            representations[PasteboardTypeIdentifier.html] = Data(html.utf8)
+        for (type, data) in content.companions {
+            representations[type] = data
         }
         if includesTrackerFreeMarker {
             representations[PasteboardTypeIdentifier.trackerFreeMarker] = Data()
@@ -104,7 +104,7 @@ public final class FakePasteboardClient: PasteboardClient {
             return nil
         }
         guard !request.content.isEmpty,
-              request.content.combinedUTF8ByteCount <= PasteboardSnapshotReader.maximumCombinedBytes
+              request.content.combinedByteCount <= PasteboardSnapshotReader.maximumCombinedBytes
         else {
             return nil
         }

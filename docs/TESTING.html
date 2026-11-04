@@ -1,11 +1,11 @@
-<!-- tracker-free-docs-parity:v1 source-sha256=769e78d8ef68d82620cd93f8978df696ff1c14591e63eb030eaa937710d3966b source-path-base64=ZG9jcy9URVNUSU5HLm1k -->
+<!-- tracker-free-docs-parity:v1 source-sha256=18c077aaf3a172ce014c5064614d48324f655c813ca452b843fc660204b1e1f0 source-path-base64=ZG9jcy9URVNUSU5HLm1k -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Tracker Free DocsParity v1">
-  <meta name="source-sha256" content="769e78d8ef68d82620cd93f8978df696ff1c14591e63eb030eaa937710d3966b">
+  <meta name="source-sha256" content="18c077aaf3a172ce014c5064614d48324f655c813ca452b843fc660204b1e1f0">
   <title>Testing and QA</title>
   <style>
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
@@ -28,7 +28,7 @@
   <h2 id="test-isolation">Test isolation</h2>
   <p><code>VERIFIED</code>: Swift Testing covers the pure recognizer, tokenizer, protected-link classifier, rules, cleaner, parameterized fixtures, precedence order reversal, and deterministic encoding/idempotence properties.</p>
   <p><code>VERIFIED</code>: XCTest covers fake-pasteboard coordinator races, named <code>NSPasteboard.withUniqueName()</code> integration, timers, lifecycle, bounded imports, Release acceptance/performance, and XCUITest menu/Settings behavior.</p>
-  <p><code>VERIFIED</code>: The current Debug run (2026-11-04) reported 87 top-level tests (83 XCTest and 4 Swift Testing): 86 passed, one expected Release-only performance skip, and zero failures. An earlier settled run's parameterized/device-configuration expansion reported 150 passing cases and zero failures.</p>
+  <p><code>VERIFIED</code>: The current Debug run (2026-11-04) reported 88 top-level tests (84 XCTest and 4 Swift Testing): 87 passed, one expected Release-only performance skip, and zero failures. An earlier settled run's parameterized/device-configuration expansion reported 150 passing cases and zero failures.</p>
   <p>Ordinary automated tests must never use <code>NSPasteboard.general</code>. A static guard permits <code>.general</code> only in the production adapter and a separately isolated opt-in target.</p>
   <p>Any General-pasteboard integration test must:</p>
   <ul>
@@ -93,7 +93,13 @@
     </tr>
   </tbody>
 </table>
-  <p><code>VERIFIED</code>: Redundant-HTML coverage beyond the numbered corpus: named-pasteboard acceptance of Firefox, Chromium, and doctype/comment envelopes; rejection of a different URL, extra text, a hyperlink, an image, formatting, a style element, an unknown entity, an unterminated tag or comment, a bare <code>&lt;</code>, empty HTML, and HTML without plain text; a real-transformer clean of an X Copy link item to plain text only, with byte-exact Restore Original; fake-pasteboard rollback that restores the HTML companion; and rejection of a transform output that carries HTML.</p>
+  <p><code>VERIFIED</code>: Browser-companion coverage beyond the numbered corpus:</p>
+  <ul>
+  <li>The observed Firefox, Chrome, and WebKit Copy link inventories each clean to plain text only through the real transformer, and Restore Original reproduces every representation byte-for-byte.</li>
+  <li>HTML is accepted in the Firefox, Chromium, and doctype/comment envelopes. It is rejected for a different URL, extra text, a hyperlink, an image, formatting, a style element, an unknown entity, an unterminated tag or comment, a bare <code>&lt;</code>, or empty markup.</li>
+  <li>Other companions are rejected for: RTF with different text, a hyperlink, or malformed bytes (real and fake pasteboards); a web archive with subresources, rich HTML, an unknown key, a non-HTML MIME type, or bytes that aren't a property list; WebKit custom data with entries, trailing bytes, or another version; mismatched UTF-16; an oversize Chromium token; a Chromium source URL with a newline or invalid UTF-8; an unknown type; any companion without plain text; and any companion on a marker-bearing readback.</li>
+  <li>Fake-pasteboard rollback restores companions, and a transform output that carries a companion is rejected.</li>
+</ul>
   <p>Critical byte fixtures include:</p>
   <ul>
   <li><code>https://e.test/p?ut%6D_source=x&amp;a=%2f&amp;b=%41</code> becoming <code>https://e.test/p?a=%2f&amp;b=%41</code>.</li>
@@ -188,6 +194,8 @@ xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Deb
 xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES test -only-testing:TrackerFreeTests/AcceptanceTests
 xcodebuild -project TrackerFree.xcodeproj -scheme TrackerFree -configuration Release build
 codesign --verify --deep --strict '/Applications/Tracker Free.app'
+zsh Scripts/VerifyStaticSafety.sh
+zsh Scripts/VerifyStaticSafetyTests.sh
 xcrun swift Scripts/DocsParity.swift --check
 xcrun swift Scripts/DocsParityIntegrationTests.swift</code></pre>
   <p><code>VERIFIED</code>: <code>ENABLE_TESTABILITY=YES</code> is passed only to the Release acceptance test invocation so the test bundle can load the application module. The generated shipping Release configuration remains <code>ENABLE_TESTABILITY=NO</code>.</p>

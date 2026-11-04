@@ -340,10 +340,12 @@ final class ClipboardCoordinatorTests: XCTestCase {
     }
 
     @MainActor
-    func testFailedWriteRollsBackRedundantHTMLCompanion() {
+    func testFailedWriteRollsBackRedundantCompanion() {
         let original = PasteboardContent(
             plainText: "https://example.test/p?utm_source=x",
-            html: "<span>https://example.test/p?utm_source=x</span>"
+            companions: [
+                PasteboardTypeIdentifier.html: Data("<span>https://example.test/p?utm_source=x</span>".utf8),
+            ]
         )
         let pasteboard = FakePasteboardClient()
         let coordinator = makeCoordinator(pasteboard: pasteboard)
@@ -358,10 +360,12 @@ final class ClipboardCoordinatorTests: XCTestCase {
     }
 
     @MainActor
-    func testTransformOutputCarryingHTMLIsRejected() {
+    func testTransformOutputCarryingCompanionIsRejected() {
         let original = PasteboardContent(
             plainText: "https://example.test/p?utm_source=x",
-            html: "<span>https://example.test/p?utm_source=x</span>"
+            companions: [
+                PasteboardTypeIdentifier.html: Data("<span>https://example.test/p?utm_source=x</span>".utf8),
+            ]
         )
         let pasteboard = FakePasteboardClient()
         let coordinator = makeCoordinator(
@@ -370,7 +374,9 @@ final class ClipboardCoordinatorTests: XCTestCase {
                 .changed(ClipboardTransformOutput(
                     content: PasteboardContent(
                         plainText: "https://example.test/p",
-                        html: "<span>https://example.test/p</span>"
+                        companions: [
+                            PasteboardTypeIdentifier.html: Data("<span>https://example.test/p</span>".utf8),
+                        ]
                     ),
                     removedParameterNames: ["utm_source"]
                 ))

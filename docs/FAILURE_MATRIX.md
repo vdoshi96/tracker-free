@@ -5,8 +5,9 @@
 | Failure mode | Severity | Preventive design and runtime mitigation | Required evidence | Blocks v1 |
 |---|---|---|---|---|
 | Clipboard erased or corrupted | Critical | Build replacement first; tiny verified commit; rollback only while owned | Inject clear/write/readback failures | Yes, except minimized disclosed process-death window |
-| Rich text, image, or file replaced by text | Critical | Strict one-item/two-type allowlist; HTML admitted only as a proven-redundant plain-text companion and restored byte-for-byte on rollback/undo | HTML, RTF/RTFD, image, file, custom fixtures; redundant-HTML accept/reject and rollback/restore tests | Yes |
-| Tracked URL survives in a rich companion | High | Cleaned writes never carry HTML; adapter and coordinator both reject HTML on a cleaned write | Post-clean type inventory and HTML-bearing transform rejection tests | Yes |
+| Rich text, image, or file replaced by text | Critical | Strict one-item/two-type allowlist; browser companions admitted only beside plain text when each is proven redundant or inert, and restored byte-for-byte on rollback/undo | HTML, RTF/RTFD, image, file, custom fixtures; observed Firefox/Chrome/WebKit inventories; per-type companion accept/reject and rollback/restore tests | Yes |
+| Tracked URL survives in a rich companion | High | Cleaned writes never carry companions; adapter and coordinator both reject them on a cleaned write | Post-clean type inventory and companion-bearing transform rejection tests | Yes |
+| Static safety scan silently skipped | High | Scans use the base-system `grep`; any search error fails the check | `Scripts/VerifyStaticSafetyTests.sh` planted-violation and unreadable-tree cases on a PATH without `rg` | Yes |
 | Lazy/promised representation fails or stalls | High | Materialize only allowed data; reject nil, ownership loss, oversize, or a return later than 100 ms | Nil, ownership-loss, and 110 ms late-return tests | Yes, subject to disclosed synchronous limit |
 | Self-triggered loop | High | Exact-generation suppression, marker support, no-op avoidance | Own-write loop test | Yes |
 | Competing cleaners oscillate | High | Idempotence and one write per generation; conflict pause | Fake competing transformer | Yes |
